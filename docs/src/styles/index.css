@@ -1,0 +1,36 @@
+.sl-markdown-content summary:not(:where(.not-content *))::before {
+  display: none;
+}
+
+ul.accordion li.item {
+  margin: 0;
+}
+
+li.item>details {
+  margin-bottom: 0 !important
+}
+
+li.item>details>summary>h3>span>svg:nth-child(2) {
+  transform: translateY(-132%);
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+}
+
+li.item>details[open]>summary>h3>span>svg:nth-child(2) {
+  transform: translateY(-132%) rotate(90deg);
+}
+
+/* table {
+  width: 100%
+}
+
+table>thead>tr {
+  width: 100% !important;
+  display: grid !important;
+
+}
+
+table>thead>tr>th {
+  margin-top: auto !important;
+
+} */

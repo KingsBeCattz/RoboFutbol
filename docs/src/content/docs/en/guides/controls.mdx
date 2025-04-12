@@ -1,0 +1,56 @@
+---
+title: "Controls"
+description: "How to control your robot with a gamepad."
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Global Controls
+<Card
+  title="Using the dpad"
+>
+  <video src="/d_pad_example.mp4" loop autoplay />
+  <Card title="Explanation" icon="magnifier">
+    The dpad works as a complete control, meaning that you can use it to accelerate, decelerate and control the steering.
+
+It has full priority and will overwrite any instruction by the dpad, this means that if we accelerate and click the down arrow on the dpad, the car will reverse with 100% speed.
+  </Card>
+</Card>
+
+## Basic Controls
+<Card
+  title="Forward and reverse"
+>
+  <video src="/normal_speed_example.mp4" loop autoplay />
+  <Card title="Explanation" icon="magnifier">
+    RT and RB are in charge of accelerating, RT goes from 0% to 100% and this way the speed is controlled forward, if RB is pressed it is equivalent to 100% of RT; Same case as with LT and LB but with those it is backward.
+
+    In case, for example, 100% reverse and 100% forward the car will be stopped, 50% reverse and 100% forward is equivalent to 50% forward.
+  </Card>
+</Card>
+<Card
+  title="Direction"
+>
+  <video src="/normal_rotation_example.mp4" loop autoplay />
+  <Card title="Explanation" icon="magnifier">
+    The left stick controls the direction of rotation, if it is 50% to the right, the right tire will reduce its speed by 50% to make a right turn; same case in the opposite direction.
+  </Card>
+</Card>
+
+## Configuring the controls
+<Card
+  title="Using left stick to forward and reverse"
+>
+  <video src="/left_axis_y_speed_example.mp4" loop autoplay />
+  <Card title="Explanation" icon="magnifier">
+    The select button is used to toggle between accelerate and decelerate, a single click makes you use the y-axis of the left stick, another click returns to the original mode, even if the control is disconnected the configuration is preserved, only restarts when the esp32 is turned off.
+  </Card>
+</Card>
+<Card
+  title="Using right stick to direction"
+>
+  <video src="/right_axis_x_rotation_example.mp4" loop autoplay />
+  <Card title="Explanation" icon="magnifier">
+    Same case as with the select button, the start button works the same way but this time, it exchanges the x-axis of the left stick for the same axis but of the right stick.
+  </Card>
+</Card>

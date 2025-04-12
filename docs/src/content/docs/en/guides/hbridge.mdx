@@ -1,0 +1,64 @@
+---
+title: "H-bridge support"
+description: "Let's see how to use any H-bridge with us."
+---
+import { LinkCard, Aside, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
+import { Accordion, AccordionItem } from 'accessible-astro-components';
+
+Our code, besides supporting several gamepads thanks to Bluepad32, also supports several H-bridges thanks to its pinout, here we show you which H-bridges we support and how to use them.
+
+<Aside type="caution">
+This project was built using the ESP32 microcontroller, if you don't have experience using it we recommend you to watch the intro tutorials.
+</Aside>
+
+<Tabs syncKey='hbridges'>
+  <TabItem label="Relay-based">
+    ### Relay Based H-Bridges
+    Slower, but simple and useful in low frequency and home prototypes. An example of this could be as in the following image:
+    <img src="/H_Bridge_Relay_Model.jpg" alt="Relay H-Bridge" loading="lazy" />
+    This example shows two power supplies (the left one is 5v and the right one can be any voltage supported by the motor), two switches (IN1 and IN2), the motor and the bridge circuitry.
+    <LinkCard title="See it on Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
+  </TabItem>
+  <TabItem label="Transistor-based">
+    ### Transistor Based H-Bridges
+    Economical, but consume more base current. An example of this could be as in the following image:
+    <img src="/H_Bridge_Transistor_Model.jpg" alt="Transistor H-Bridge" style="width: 100%;" loading="lazy" />
+    This example shows the circuitry of the h-bridge, two switches and a motor, the same as the example with relays, with the difference that only one power source (5v) is used.
+    <LinkCard title="See it on Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
+  </TabItem>
+  <TabItem label="MOSFET-based">
+    ### MOSFET Based H-Bridges
+    Very efficient, used in almost everything today. There are N and P channel MOSFETs. 
+    <CardGrid>
+      <LinkCard
+        title="NOYITO 170W High-power H-bridge"
+        href="https://a.co/d/647R9WZ"
+        description='This is a high-power H-bridge that can be used for motors up to 170W. It has a built-in PWM control and protection features.'
+      />
+      <LinkCard
+        title="BTS7960 Motor Driver Module 43A"
+        href="https://a.co/d/acEVuIM"
+        description='This is a high-power H-bridge that can be used for motors up to 43A. It has a built-in PWM control and protection features.'
+      />
+    </CardGrid>
+  </TabItem>
+  <TabItem label="DriverIC-based">
+    ### DriverIC Based H-Bridges
+    They are integrated/chip based, integrate protection, logic and sometimes PWM control.
+    <LinkCard
+      title="L298N Motor Driver Controller Board"
+      href="https://a.co/d/iUPWyC4"
+      description='This is a fairly inexpensive h-bridge generally used for low power motors.'
+    />
+  </TabItem>
+</Tabs>
+
+As you can see, absolutely all of these examples have one thing in common, the presence of an IN1 and IN2 to control the direction of a motor, in our code there is support for a maximum of two motors and 2 interfaces:
+- Classic interface - Simple HIGH or LOW output
+- PWM interface - PWM output from 0 to 255
+
+Each mode has its respective pins, see them in:
+<LinkCard
+  title="PinOut"
+  href="/en/guides/pinout/"
+/>

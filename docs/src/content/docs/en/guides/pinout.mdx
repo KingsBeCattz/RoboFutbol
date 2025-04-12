@@ -1,0 +1,26 @@
+---
+title: "Pinout"
+description: "PinOut that you can use to your advantage."
+---
+import { LinkCard, Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+This project was built using the ESP32 microcontroller, if you don't have experience using it we recommend you to watch the intro tutorials.
+</Aside>
+
+| Pin | Motor | Input | Type |
+|---|---|---|---|
+| GPIO 12 | Motor 1 | IN1 | PWM |
+| GPIO 13 | Motor 1 | IN2 | PWM |
+| GPIO 25 | Motor 1 | IN1 | DIGITAL |
+| GPIO 26 | Motor 1 | IN2 | DIGITAL |
+| GPIO 17 | Motor 2 | IN1 | PWM |
+| GPIO 16 | Motor 2 | IN2 | PWM |
+| GPIO 19 | Motor 2 | IN1 | DIGITAL |
+| GPIO 18 | Motor 2 | IN2 | DIGITAL |
+| GPIO 23 | All | PWM | PWM |
+| GPIO 22 | All | ENABLE | DIGITAL |
+
+<Aside type="tip">
+**GPIO 22** and **GPIO 23** pins are for H-bridges that require a separate pwm input, or enable is required with an input voltage greater than 0v.
+</Aside>

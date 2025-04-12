@@ -1,0 +1,56 @@
+---
+title: Controles
+description: Controles que puedes usar para manejar el coche.
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Controles globales
+<Card
+  title="Usando el dpad"
+>
+  <video src="/d_pad_example.mp4" loop autoplay />
+  <Card title="Explicación" icon="magnifier">
+    El dpad funciona como un mando completo, es decir, puedes usarlo para acelerar, desacelerar y controlar la dirección.
+
+Tiene prioridad total y sobrescribirá cualquier instrucción del dpad, esto significa que si aceleramos y pulsamos la flecha abajo del dpad, el coche dará marcha atrás con el 100% de velocidad.
+  </Card>
+</Card>
+
+## Controles básicos
+<Card
+  title="Avanzar y retroceder"
+>
+  <video src="/normal_speed_example.mp4" loop autoplay />
+  <Card title="Explicación" icon="magnifier">
+    RT y RB se encargan de acelerar, RT va de 0% a 100% y así se controla la velocidad hacia delante, si se pulsa RB equivale al 100% de RT; Mismo caso que con LT y LB pero con estos es hacia atrás.
+
+    En el caso, por ejemplo, de 100% marcha atrás y 100% marcha adelante el coche se parará, 50% marcha atrás y 100% marcha adelante equivale a 50% marcha adelante.
+  </Card>
+</Card>
+<Card
+  title="Dirección"
+>
+  <video src="/normal_rotation_example.mp4" loop autoplay />
+  <Card title="Explicación" icon="magnifier">
+    El stick izquierdo controla el sentido de giro, si está un 50% a la derecha, el neumático derecho reducirá su velocidad un 50% para hacer un giro a la derecha; mismo caso en sentido contrario.
+  </Card>
+</Card>
+
+## Configurando los controles
+<Card
+  title="Usando el stick izquierdo para avanzar y retroceder"
+>
+  <video src="/left_axis_y_speed_example.mp4" loop autoplay />
+  <Card title="Explicación" icon="magnifier">
+    El botón select se usa para alternar entre acelerar y desacelerar, un solo click hace que uses el eje y del stick izquierdo, otro click vuelve al modo original, aunque se desconecte el mando la configuración se conserva, solo se reinicia cuando se apaga el esp32.
+  </Card>
+</Card>
+<Card
+  title="Usando el stick derecho para dirección"
+>
+  <video src="/right_axis_x_rotation_example.mp4" loop autoplay />
+  <Card title="Explicación" icon="magnifier">
+    Mismo caso que con el botón select, el botón start funciona igual pero esta vez, intercambia el eje x del stick izquierdo por el mismo eje pero del stick derecho.
+  </Card>
+</Card>
