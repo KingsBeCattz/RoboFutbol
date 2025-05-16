@@ -18,9 +18,15 @@ Este proyecto fue construido usando el microcontrolador ESP32, si no tienes expe
 | GPIO 16 | Motor 2 | IN2 | PWM |
 | GPIO 19 | Motor 2 | IN1 | DIGITAL |
 | GPIO 18 | Motor 2 | IN2 | DIGITAL |
-| GPIO 23 | Ambos | PWM | PWM |
-| GPIO 22 | Ambos | ENABLE | DIGITAL |
+| GPIO 27 | Motor 1 | PWM | PWM |
+| GPIO 14 | Motor 1 | ENABLE | DIGITAL |
+| GPIO 23 | Motor 2 | PWM | PWM |
+| GPIO 22 | Motor 2 | ENABLE | DIGITAL |
 
 <Aside type="tip">
-Los pines **GPIO 22** y **GPIO 23** son para puentes H que requieren una entrada pwm separada, o se requiere habilitación con una tensión de entrada superior a 0v.
+Los pines **GPIO 22**/**GPIO 14** y **GPIO 14**/**GPIO 27** son para puentes H que requieren una entrada pwm separada, o se requiere habilitación con una tensión de entrada superior a 0v. Arriba se puede observar que el **GPIO 14** es el habilitador del motor 1 y el **GPIO 22** es el habilitador del motor 2. Mismo caso con el **GPIO 27** y el **GPIO 23** para PWM.
+</Aside>
+
+<Aside type="tip">
+Si tu puente H se basa en IN1 e IN2 con una señal PWM, puedes usar los pines respectivos, pero si necesitas un giro más suave, simplemente haz un puente entre el pin **GPIO 32** y GND.
 </Aside>

@@ -18,9 +18,15 @@ This project was built using the ESP32 microcontroller, if you don't have experi
 | GPIO 16 | Motor 2 | IN2 | PWM |
 | GPIO 19 | Motor 2 | IN1 | DIGITAL |
 | GPIO 18 | Motor 2 | IN2 | DIGITAL |
-| GPIO 23 | All | PWM | PWM |
-| GPIO 22 | All | ENABLE | DIGITAL |
+| GPIO 27 | Motor 1 | PWM | PWM |
+| GPIO 14 | Motor 1 | ENABLE | DIGITAL |
+| GPIO 23 | Motor 2 | PWM | PWM |
+| GPIO 22 | Motor 2 | ENABLE | DIGITAL |
 
 <Aside type="tip">
-**GPIO 22** and **GPIO 23** pins are for H-bridges that require a separate pwm input, or enable is required with an input voltage greater than 0v.
+The **GPIO 22**/**GPIO 14** and **GPIO 14**/**GPIO 27** pins are for H-bridges that require a separate pwm input, or enable is required above 0v input voltage. Above you can see that **GPIO 14** is the enabler for motor 1 and **GPIO 22** is the enabler for motor 2. Same case with **GPIO 27** and **GPIO 23** for PWM.
+</Aside>
+
+<Aside type="tip">
+If your H-bridge is based on `IN1` and `IN2` with a PWM signal, you can use the respective pins, but if you need a smoother turn, simply jumper the **GPIO 32** pin to GND.
 </Aside>
