@@ -17,4 +17,5 @@ https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubuserconte
 > **[PinOut](https://robo-futbol.vercel.app/en/guides/pinout/)**
 - If your H-bridge only needs pwm outputs, use GPIO pins 12, 13, 16 and 17.
 - If your H-bridge needs only I/O outputs, use GPIO pins 25, 26, 19 and 18.
-- If you need it to be I/O pins and one PWM, you can pull the overall speed from GPIO 23.
+- If you need to use Digital pins and a PWM, you can output the speed of motor 1 and motor 2 via GPIO 27 and 23 respectively.
+- If you need a smoother rotation, just make a jumper between GPIO pin 32 and GND.
