@@ -9,8 +9,6 @@
 #include <Bluepad32.h>
 #include "esp32/clk.h"
 
-#define CONFIG_BLUEPAD32_MAX_DEVICES 1
-
 #define BLINK (1 << 0)          // Defines the mask of the bit on the index 0
 #define AXIS_LY (1 << 1)        // Defines the mask of the bit on the index 1
 #define AXIS_RX (1 << 2)        // Defines the mask of the bit on the index 2
@@ -21,21 +19,25 @@
 uint8_t flags = 0 | BLINK;
 
 // PIN_OUT
-int PWM_SPEED = 23;
-int ENABLE = 22;
+const uint8_t M1_PWM_SPEED = 27;
+const uint8_t M1_ENABLE = 14;
+const uint8_t M2_PWM_SPEED = 23;
+const uint8_t M2_ENABLE = 22;
 
-int D_M1_IN1 = 25;
-int D_M1_IN2 = 26;
-int D_M2_IN1 = 19; 
-int D_M2_IN2 = 18;
+const uint8_t DIRECTIONAL_SENSIVITY = 32;
 
-int PWM_M1_IN1 = 12;
-int PWM_M1_IN2 = 13;
-int PWM_M2_IN1 = 17;
-int PWM_M2_IN2 = 16;
+const uint8_t D_M1_IN1 = 25;
+const uint8_t D_M1_IN2 = 26;
+const uint8_t D_M2_IN1 = 19;
+const uint8_t D_M2_IN2 = 18;
 
-// Instances a new controller pointer
-ControllerPtr Controllers[CONFIG_BLUEPAD32_MAX_DEVICES]; // Sets only one controller slot
+const uint8_t PWM_M1_IN1 = 12;
+const uint8_t PWM_M1_IN2 = 13;
+const uint8_t PWM_M2_IN1 = 17;
+const uint8_t PWM_M2_IN2 = 16;
+
+// Instances a new controller pointer array
+ControllerPtr Controllers[1]; // Sets only one controller slot
 
 void setup()
 {
@@ -49,16 +51,23 @@ void setup()
   Serial.print("Firmware version installed: ");
   Serial.println(fv);
   pinMode(2, OUTPUT);
-  pinMode(PWM_SPEED, OUTPUT);
-  pinMode(ENABLE, OUTPUT);
+
+  pinMode(M1_PWM_SPEED, OUTPUT);
+  pinMode(M1_ENABLE, OUTPUT);
+  pinMode(M2_PWM_SPEED, OUTPUT);
+  pinMode(M2_ENABLE, OUTPUT);
+
   pinMode(D_M1_IN1, OUTPUT);
   pinMode(D_M1_IN2, OUTPUT);
   pinMode(D_M2_IN1, OUTPUT);
   pinMode(D_M2_IN2, OUTPUT);
+
   pinMode(PWM_M1_IN1, OUTPUT);
   pinMode(PWM_M1_IN2, OUTPUT);
   pinMode(PWM_M2_IN1, OUTPUT);
   pinMode(PWM_M2_IN2, OUTPUT);
+
+  pinMode(DIRECTIONAL_SENSIVITY, INPUT_PULLUP);
 
   // To get the BD Address (MAC address) call:
   const uint8_t *addr = BP32.localBdAddress();
@@ -87,7 +96,9 @@ void onConnectedController(ControllerPtr gamepad)
     Controllers[0] = gamepad;
     flags &= ~BLINK;
     BP32.enableNewBluetoothConnections(false);
-  } else {
+  }
+  else
+  {
     gamepad->disconnect();
   }
 }
@@ -99,6 +110,8 @@ void onDisconnectedController(ControllerPtr gamepad)
     Serial.println("--- Controller is disconnected ---");
     Controllers[0] = nullptr;
     flags |= BLINK;
+    handleMovement(0, 0.0, false);
+    handleMovement(0, 0.0, true);
     BP32.enableNewBluetoothConnections(true);
   }
 }
@@ -136,7 +149,7 @@ long handleDualSpeed(ControllerPtr gamepad, bool joystick)
  * Just return a value from -1.0 to 1.0 with middle points like 0.55.
  * The first value is the bluepad32's controller and the second value is a boolean who represents if the direction is from the right joystick or from the left stick
  */
-float handleDirection(ControllerPtr gamepad, bool Rjoystick)
+float handleDirection(ControllerPtr gamepad, bool joystick)
 {
   int dpad_state_lr = gamepad->dpad();
   if (dpad_state_lr & 4)
@@ -149,92 +162,40 @@ float handleDirection(ControllerPtr gamepad, bool Rjoystick)
     return -1.0;
   }
 
-  float direction = (Rjoystick ? gamepad->axisRX() : gamepad->axisX()) / 512.0;
-  if (abs(direction) < 0.15)
+  float direction = (joystick ? gamepad->axisRX() : gamepad->axisX()) / 512.0;
+  if (abs(direction) < 0.30)
     return 0.0;
-
   return direction;
 }
 
-void writeOutputs(
-  int PWM_M1_IN1_VALUE,
-  int PWM_M1_IN2_VALUE,
-  int PWM_M2_IN1_VALUE,
-  int PWM_M2_IN2_VALUE,
-  bool D_M1_IN1_VALUE,
-  bool D_M1_IN2_VALUE,
-  bool D_M2_IN1_VALUE,
-  bool D_M2_IN2_VALUE) {
-    // PWM PINS
-    analogWrite(PWM_M1_IN1, PWM_M1_IN1_VALUE);
-    analogWrite(PWM_M1_IN2, PWM_M1_IN2_VALUE);
-    analogWrite(PWM_M2_IN1, PWM_M2_IN1_VALUE);
-    analogWrite(PWM_M2_IN2, PWM_M2_IN2_VALUE);
-    // DIGITAL PINS
-    digitalWrite(D_M1_IN1, D_M1_IN1_VALUE);
-    digitalWrite(D_M1_IN2, D_M1_IN2_VALUE);
-    digitalWrite(D_M2_IN1, D_M2_IN1_VALUE);
-    digitalWrite(D_M2_IN2, D_M2_IN2_VALUE);
-}
-
-void processGamepad(ControllerPtr gamepad)
+void handleMovement(int PWM, float DIRECTION, bool INX)
 {
-  const float direction = handleDirection(gamepad, flags & AXIS_RX);
-  const int general_speed = handleDualSpeed(gamepad, flags & AXIS_LY);
-  const int speed_lwheel = round(abs(general_speed) * (direction < 0.0 ? 1.00 - abs(direction) : 1.00));
-  const int speed_rwheel = round(abs(general_speed) * (direction > 0.0 ? 1.00 - abs(direction) : 1.00));
+  int M1_PWM = round(PWM * (DIRECTION < 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
+  int M2_PWM = round(PWM * (DIRECTION > 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
+  bool SENSIVITY = !digitalRead(DIRECTIONAL_SENSIVITY);
+  bool DIGITAL_BASE_M1 = (M1_PWM > 0);
+  bool DIGITAL_BASE_M2 = (M2_PWM > 0);
 
-  analogWrite(PWM_SPEED, abs(general_speed));
-  digitalWrite(ENABLE, HIGH);
+  bool M1_DIGITAL = SENSIVITY ? DIGITAL_BASE_M1 : !(DIRECTION < 0.0f);
+  bool M2_DIGITAL = SENSIVITY ? DIGITAL_BASE_M2 : !(DIRECTION > 0.0f);
 
-  if (general_speed == 0)
-  {
-    analogWrite(PWM_SPEED, 0);
-    digitalWrite(ENABLE, LOW);
-    
-    writeOutputs(
-      0,     //PWM Output - Motor 1 - IN1
-      0,     //PWM Output - Motor 1 - IN2
-      0,     //PWM Output - Motor 2 - IN1
-      0,     //PWM Output - Motor 2 - IN2
-      false, //DIGITAL Output - Motor 1 - IN1
-      false, //DIGITAL Output - Motor 1 - IN2
-      false, //DIGITAL Output - Motor 2 - IN1
-      false  //DIGITAL Output - Motor 2 - IN2
-    );
-  }
-  else
-  {
-    if (general_speed > 0)
-    {
-      writeOutputs(
-        speed_lwheel,                   //PWM Output - Motor 1 - IN1
-        0,                              //PWM Output - Motor 1 - IN2
-        speed_rwheel,                   //PWM Output - Motor 2 - IN1
-        0,                              //PWM Output - Motor 2 - IN2
-        direction < 0.0 ? false : true, //DIGITAL Output - Motor 1 - IN1
-        false,                          //DIGITAL Output - Motor 1 - IN2
-        direction > 0.0 ? false : true, //DIGITAL Output - Motor 2 - IN1
-        false                           //DIGITAL Output - Motor 2 - IN2
-      );
-    }
-    else
-    {
-      writeOutputs(
-        0,                              //PWM Output - Motor 1 - IN1
-        speed_lwheel,                   //PWM Output - Motor 1 - IN2
-        0,                              //PWM Output - Motor 2 - IN1
-        speed_rwheel,                   //PWM Output - Motor 2 - IN2
-        false,                          //DIGITAL Output - Motor 1 - IN1
-        direction < 0.0 ? false : true, //DIGITAL Output - Motor 1 - IN2
-        false,                          //DIGITAL Output - Motor 2 - IN1
-        direction > 0.0 ? false : true  //DIGITAL Output - Motor 2 - IN2
-      );
-    }
-  }
+  analogWrite(M1_PWM_SPEED, M1_PWM);
+  digitalWrite(M1_ENABLE, DIGITAL_BASE_M1);
+  analogWrite(M2_PWM_SPEED, M2_PWM);
+  digitalWrite(M2_ENABLE, DIGITAL_BASE_M2);
+
+  analogWrite(INX ? PWM_M1_IN1 : PWM_M1_IN2, M1_PWM);
+  analogWrite(INX ? PWM_M2_IN1 : PWM_M2_IN2, M2_PWM);
+  analogWrite(!INX ? PWM_M1_IN1 : PWM_M1_IN2, 0);
+  analogWrite(!INX ? PWM_M2_IN1 : PWM_M2_IN2, 0);
+
+  digitalWrite(!INX ? D_M1_IN1 : D_M1_IN2, false);
+  digitalWrite(!INX ? D_M2_IN1 : D_M2_IN2, false);
+  digitalWrite(INX ? D_M1_IN1 : D_M1_IN2, M1_DIGITAL);
+  digitalWrite(INX ? D_M2_IN1 : D_M2_IN2, M2_DIGITAL);
 }
 
-void changeConfig(ControllerPtr gamepad)
+void checkConfig(ControllerPtr gamepad)
 {
   if (!(flags & SELECT_PRESSED) && gamepad->miscSelect())
   {
@@ -262,8 +223,28 @@ void loop()
   ControllerPtr Controller = Controllers[0];
   if (Controller && Controller->isConnected() && Controller->isGamepad())
   {
-    changeConfig(Controller);
-    processGamepad(Controller);
+    const int speed = handleDualSpeed(Controller, flags & AXIS_LY);
+    checkConfig(Controller);
+
+    if (speed != 0)
+      handleMovement(abs(speed), handleDirection(Controller, flags & AXIS_RX), speed > 0);
+    else
+    {
+      analogWrite(M1_PWM_SPEED, 0);
+      digitalWrite(M1_ENABLE, false);
+      analogWrite(M2_PWM_SPEED, 0);
+      digitalWrite(M2_ENABLE, false);
+
+      analogWrite(PWM_M1_IN1, 0);
+      analogWrite(PWM_M1_IN2, 0);
+      analogWrite(PWM_M2_IN1, 0);
+      analogWrite(PWM_M2_IN2, 0);
+
+      digitalWrite(D_M1_IN1, false);
+      digitalWrite(D_M1_IN2, false);
+      digitalWrite(D_M2_IN1, false);
+      digitalWrite(D_M2_IN2, false);
+    }
   }
 
   if (flags & BLINK)
@@ -271,7 +252,7 @@ void loop()
     digitalWrite(2, HIGH);
     delay(100);
     digitalWrite(2, LOW);
-    delay(100);
+    delay(85);
   }
   else
   {
