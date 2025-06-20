@@ -10,23 +10,73 @@ This project was built using the ESP32 microcontroller, if you don't have experi
 
 | Pin | Motor | Input | Type |
 |---|---|---|---|
-| GPIO 12 | Motor 1 | IN1 | PWM |
-| GPIO 13 | Motor 1 | IN2 | PWM |
 | GPIO 25 | Motor 1 | IN1 | DIGITAL |
 | GPIO 26 | Motor 1 | IN2 | DIGITAL |
-| GPIO 17 | Motor 2 | IN1 | PWM |
-| GPIO 16 | Motor 2 | IN2 | PWM |
+| GPIO 27 | Motor 1 | IN1 | PWM |
+| GPIO 14 | Motor 1 | IN2 | PWM |
+| GPIO 33 | Motor 1 | ENABLE | DIGITAL |
+| GPIO 32 | Motor 1 | PWM SPEED | PWM |
 | GPIO 19 | Motor 2 | IN1 | DIGITAL |
 | GPIO 18 | Motor 2 | IN2 | DIGITAL |
-| GPIO 27 | Motor 1 | PWM | PWM |
-| GPIO 14 | Motor 1 | ENABLE | DIGITAL |
-| GPIO 23 | Motor 2 | PWM | PWM |
+| GPIO 17 | Motor 2 | IN1 | PWM |
+| GPIO 16 | Motor 2 | IN2 | PWM |
 | GPIO 22 | Motor 2 | ENABLE | DIGITAL |
+| GPIO 23 | Motor 2 | PWM SPEED | PWM |
 
 <Aside type="tip">
-The **GPIO 22**/**GPIO 14** and **GPIO 14**/**GPIO 27** pins are for H-bridges that require a separate pwm input, or enable is required above 0v input voltage. Above you can see that **GPIO 14** is the enabler for motor 1 and **GPIO 22** is the enabler for motor 2. Same case with **GPIO 27** and **GPIO 23** for PWM.
+Pins **GPIO 33** (Motor 1) and **GPIO 22** (Motor 2) act as **digital ENABLE pins**, used to activate the motor with a simple ON/OFF signal.  
+Pins **GPIO 32** and **GPIO 23** are used for **dedicated PWM speed control**, separate from IN1 and IN2.
 </Aside>
 
 <Aside type="tip">
-If your H-bridge is based on `IN1` and `IN2` with a PWM signal, you can use the respective pins, but if you need a smoother turn, simply jumper the **GPIO 32** pin to GND.
+If your H-bridge only requires PWM signals on IN1 and IN2, you can simply use the `ENABLE_PWM_OUT` flag.
+
+If you're also using digital outputs (`ENABLE_DIGITAL_OUT`), you can achieve smoother behavior by enabling the `HOLD_DIGITAL` flag.
+
+This flag **keeps the digital pins active** even when the speed is less than 100%, allowing the motor to maintain direction even at low speeds.  
+> This replaces the old method of physically bridging GPIO 32 to GND to avoid sudden motor shutdowns at low speeds.
+</Aside>
+
+## Flag Configuration
+
+You can control which pins are used via the following flags, which can be combined using the `|` operator at compile time:
+
+```cpp
+// Available flags
+#define ENABLE_DIGITAL_OUT (1 << 0)  // Uses IN1/IN2 as digital ON/OFF outputs
+#define ENABLE_PWM_OUT     (1 << 1)  // Uses PWM on IN1/IN2
+#define ENABLE_EN_OUT      (1 << 2)  // Uses dedicated ENABLE pins
+#define ENABLE_SPEED_OUT   (1 << 3)  // Uses dedicated PWM pins for speed control
+#define HOLD_DIGITAL       (1 << 4)  // Keeps IN1/IN2 active even if speed < 100%
+
+// Basic example: only PWM on IN1/IN2
+#define flags (ENABLE_PWM_OUT)
+
+// Full setup: PWM + ENABLE + speed control + digital retention
+#define flags (ENABLE_PWM_OUT | ENABLE_EN_OUT | ENABLE_SPEED_OUT | ENABLE_DIGITAL_OUT | HOLD_DIGITAL)
+```
+
+### What does `HOLD_DIGITAL` do?
+
+When `HOLD_DIGITAL` is active, the digital outputs (IN1 or IN2) **stay ON as long as a direction is present**, even if the speed is low.
+
+This prevents the motor from “cutting off” when direction is present but the speed is not at 100%, such as in the 10%-90% range, reducing jerks and enabling smoother motion.
+
+> ⚠️ If you don’t use `HOLD_DIGITAL`, the digital pins will automatically turn OFF unless the direction reaches 100%, which can cause unwanted stops or stutters.
+
+---
+
+## Logic Table: Which Pins Activate per `flag`
+
+| Active Flag         | Pins Used                                     | Description |
+|---------------------|-----------------------------------------------|-------------|
+| `ENABLE_DIGITAL_OUT` | `GPIO 25`, `GPIO 26`, `GPIO 19`, `GPIO 18`   | Uses IN1 and IN2 as basic ON/OFF digital outputs |
+| `ENABLE_PWM_OUT`     | `GPIO 27`, `GPIO 14`, `GPIO 17`, `GPIO 16`   | Uses IN1 and IN2 with PWM modulation |
+| `ENABLE_EN_OUT`      | `GPIO 33`, `GPIO 22`                         | Dedicated digital ENABLE pins for each motor |
+| `ENABLE_SPEED_OUT`   | `GPIO 32`, `GPIO 23`                         | Dedicated PWM pins for speed control |
+| `HOLD_DIGITAL`       | *Depends on direction* + `ENABLE_DIGITAL_OUT` | Keeps digital pins active even if speed < 100% |
+
+<Aside type="note">
+⚠️ The `HOLD_DIGITAL` flag **does not activate pins by itself** — it modifies the behavior of `ENABLE_DIGITAL_OUT`.  
+When active, it prevents IN1/IN2 from turning off at low speeds while a direction is still present.
 </Aside>

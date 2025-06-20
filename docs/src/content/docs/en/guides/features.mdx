@@ -4,13 +4,20 @@ description: "Get to know all the functions that we offer you."
 ---
 import { LinkCard, Aside } from '@astrojs/starlight/components';
 
-Our guide adds support for various gamepads, [click here to check which ones](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/), and to various support for various bridges h.
+Our guide provides support for multiple gamepads — [click here to view the list of supported controllers](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/) — as well as compatibility with various types of H-bridges.
 
-At the same time it has several ways to control it, you can modulate the speed with triggers and shortcuts next to the bumpers (or R1/L1) and turn with the X axis of the left stick; modulate the speed with the Y axis of the left stick, control the turn with the X axis of the right stick; even a “universal” control with the d-pad.
+The system includes multiple control modes, **all configurable** at runtime:
+
+- By default, speed is modulated using the **triggers** (RT/LT), and turning is controlled with the **left stick's X axis**.
+- The **Select** button works as a toggle: pressing it switches speed control to the **left stick's Y axis**; pressing it again returns to the previous mode.
+- The **Start** button also acts as a toggle: it switches turn control to the **right stick's X axis**, and toggles back with another press.
+- You can also use the **d-pad** as a universal directional controller.
+- If you're turning and press the **X button on Xbox** (or **Square on PlayStation**, **Y on Nintendo**), a **sharp/quick turn** is triggered immediately.
 
 <Aside type="caution">
-This project was built using the ESP32 microcontroller, if you don't have experience using it we recommend you to watch the intro tutorials.
+This project is built to run on the **ESP32 microcontroller**.  
+If you’re not familiar with it, we recommend reviewing some introductory tutorials before continuing.
 </Aside>
 
 <LinkCard title="PinOut" href="/en/guides/pinout/" />
-<LinkCard title="H-bridge support" href="/en/guides/hbridge/" />
+<LinkCard title="H-Bridge Support" href="/en/guides/hbridge/" />

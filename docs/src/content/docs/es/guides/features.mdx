@@ -4,12 +4,19 @@ description: Conozca todas las funciones que le ofrecemos.
 ---
 import { LinkCard, Aside } from '@astrojs/starlight/components';
 
-Nuestra guía añade soporte para varios gamepads, [haz clic aquí para comprobar cuáles](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/), y para varios soporte para varios puentes h.
+Nuestra guía ofrece soporte para múltiples gamepads — [haz clic aquí para ver la lista de controladores compatibles](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/) — así como compatibilidad con diversos tipos de puentes H.
 
-Al mismo tiempo tiene varias formas de controlarlo, puedes modular la velocidad con los gatillos y atajos junto a los parachoques (o R1/L1) y girar con el eje X del stick izquierdo; modular la velocidad con el eje Y del stick izquierdo, controlar el giro con el eje X del stick derecho; incluso un control «universal» con el d-pad.
+El sistema incluye múltiples formas de control, **todas configurables** en tiempo de ejecución:
+
+- Por defecto, puedes modular la velocidad usando los **gatillos** (RT/LT) y controlar el giro con el **eje X del stick izquierdo**.
+- El botón **Select** funciona como un interruptor: al presionarlo, el control de velocidad cambia al **eje Y del stick izquierdo**; al volver a presionarlo, regresa al modo anterior.
+- El botón **Start** también actúa como un interruptor: permite cambiar el control de giro al **eje X del stick derecho**, y alternar de nuevo con otra pulsación.
+- También puedes usar el **d-pad** como un control universal para movimientos básicos.
+- Si, mientras estás girando, presionas el botón **X de Xbox** (equivalente a **Cuadrado en PlayStation** o **Y en Nintendo**), se ejecuta un **giro brusco inmediato**.
 
 <Aside type="caution">
-Este proyecto fue construido usando el microcontrolador ESP32, si no tienes experiencia usándolo te recomendamos ver los tutoriales de introducción.
+Este proyecto está diseñado para funcionar con el microcontrolador **ESP32**.  
+Si no tienes experiencia previa con él, te recomendamos consultar primero algunos tutoriales de introducción.
 </Aside>
 
 <LinkCard title="PinOut" href="/es/guides/pinout/" />
