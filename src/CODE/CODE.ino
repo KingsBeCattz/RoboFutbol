@@ -5,258 +5,341 @@
  * Written by: Johan 4CMT
  */
 
-#include <Arduino.h>
-#include <Bluepad32.h>
-#include "esp32/clk.h"
-
-#define BLINK (1 << 0)          // Defines the mask of the bit on the index 0
-#define AXIS_LY (1 << 1)        // Defines the mask of the bit on the index 1
-#define AXIS_RX (1 << 2)        // Defines the mask of the bit on the index 2
-#define SELECT_PRESSED (1 << 3) // Defines the mask of the bit on the index 3
-#define START_PRESSED (1 << 4)  // Defines the mask of the bit on the index 4
-
-// Sets the flags to 0 and switch the bit on BLINK (index [0]) as true
-uint8_t flags = 0 | BLINK;
-
-// PIN_OUT
-const uint8_t M1_PWM_SPEED = 27;
-const uint8_t M1_ENABLE = 14;
-const uint8_t M2_PWM_SPEED = 23;
-const uint8_t M2_ENABLE = 22;
-
-const uint8_t DIRECTIONAL_SENSIVITY = 32;
-
-const uint8_t D_M1_IN1 = 25;
-const uint8_t D_M1_IN2 = 26;
-const uint8_t D_M2_IN1 = 19;
-const uint8_t D_M2_IN2 = 18;
-
-const uint8_t PWM_M1_IN1 = 12;
-const uint8_t PWM_M1_IN2 = 13;
-const uint8_t PWM_M2_IN1 = 17;
-const uint8_t PWM_M2_IN2 = 16;
-
-// Instances a new controller pointer array
-ControllerPtr Controllers[1]; // Sets only one controller slot
-
-void setup()
-{
-  setCpuFrequencyMhz(240);
-  Serial.begin(115200);
-  while (!Serial)
-  {
-  }
-
-  String fv = BP32.firmwareVersion();
-  Serial.print("Firmware version installed: ");
-  Serial.println(fv);
-  pinMode(2, OUTPUT);
-
-  pinMode(M1_PWM_SPEED, OUTPUT);
-  pinMode(M1_ENABLE, OUTPUT);
-  pinMode(M2_PWM_SPEED, OUTPUT);
-  pinMode(M2_ENABLE, OUTPUT);
-
-  pinMode(D_M1_IN1, OUTPUT);
-  pinMode(D_M1_IN2, OUTPUT);
-  pinMode(D_M2_IN1, OUTPUT);
-  pinMode(D_M2_IN2, OUTPUT);
-
-  pinMode(PWM_M1_IN1, OUTPUT);
-  pinMode(PWM_M1_IN2, OUTPUT);
-  pinMode(PWM_M2_IN1, OUTPUT);
-  pinMode(PWM_M2_IN2, OUTPUT);
-
-  pinMode(DIRECTIONAL_SENSIVITY, INPUT_PULLUP);
-
-  // To get the BD Address (MAC address) call:
-  const uint8_t *addr = BP32.localBdAddress();
-  Serial.print("BD Address: ");
-  for (int i = 0; i < 6; i++)
-  {
-    Serial.print(addr[i], HEX);
-    if (i < 5)
-      Serial.print(":");
-    else
-      Serial.println();
-  }
-
-  BP32.setup(&onConnectedController, &onDisconnectedController);
-
-  BP32.forgetBluetoothKeys();
-}
-
-void onConnectedController(ControllerPtr gamepad)
-{
-  if (Controllers[0] == nullptr)
-  {
-    Serial.print("--- Controller of ");
-    Serial.print(gamepad->getModelName());
-    Serial.println(" is connected ---");
-    Controllers[0] = gamepad;
-    flags &= ~BLINK;
-    BP32.enableNewBluetoothConnections(false);
-  }
-  else
-  {
-    gamepad->disconnect();
-  }
-}
-
-void onDisconnectedController(ControllerPtr gamepad)
-{
-  if (Controllers[0] == gamepad)
-  {
-    Serial.println("--- Controller is disconnected ---");
-    Controllers[0] = nullptr;
-    flags |= BLINK;
-    handleMovement(0, 0.0, false);
-    handleMovement(0, 0.0, true);
-    BP32.enableNewBluetoothConnections(true);
-  }
-}
-
-/**
- * Just return a value from -255 to 255.
- * The first value is the bluepad32's controller and the second value is a boolean who represents if the speed is from the left joystick or not
- */
-long handleDualSpeed(ControllerPtr gamepad, bool joystick)
-{
-  int dpad_state_ud = gamepad->dpad();
-  if (dpad_state_ud & 1)
-    return 255;
-  if (dpad_state_ud & 2)
-    return -255;
-  if (joystick)
-  {
-    long speed = map(gamepad->axisY(), 0, 512, 0, 255);
-    if (abs(speed) < 15)
-      return 0;
-    return speed * -1;
-  }
-  long LB = gamepad->l1();
-  long RB = gamepad->r1();
-  long LT = gamepad->brake();
-  long RT = gamepad->throttle();
-
-  long L = LB ? 255 : map(LT, 0, 1023, 0, 255);
-  long R = RB ? 255 : map(RT, 0, 1023, 0, 255);
-
-  return R + (L * -1);
-}
-
-/**
- * Just return a value from -1.0 to 1.0 with middle points like 0.55.
- * The first value is the bluepad32's controller and the second value is a boolean who represents if the direction is from the right joystick or from the left stick
- */
-float handleDirection(ControllerPtr gamepad, bool joystick)
-{
-  int dpad_state_lr = gamepad->dpad();
-  if (dpad_state_lr & 4)
-  {
-    return 1.0;
-  }
-
-  if (dpad_state_lr & 8)
-  {
-    return -1.0;
-  }
-
-  float direction = (joystick ? gamepad->axisRX() : gamepad->axisX()) / 512.0;
-  if (abs(direction) < 0.30)
-    return 0.0;
-  return direction;
-}
-
-void handleMovement(int PWM, float DIRECTION, bool INX)
-{
-  int M1_PWM = round(PWM * (DIRECTION < 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
-  int M2_PWM = round(PWM * (DIRECTION > 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
-  bool SENSIVITY = !digitalRead(DIRECTIONAL_SENSIVITY);
-  bool DIGITAL_BASE_M1 = (M1_PWM > 0);
-  bool DIGITAL_BASE_M2 = (M2_PWM > 0);
-
-  bool M1_DIGITAL = SENSIVITY ? DIGITAL_BASE_M1 : !(DIRECTION < 0.0f);
-  bool M2_DIGITAL = SENSIVITY ? DIGITAL_BASE_M2 : !(DIRECTION > 0.0f);
-
-  analogWrite(M1_PWM_SPEED, M1_PWM);
-  digitalWrite(M1_ENABLE, DIGITAL_BASE_M1);
-  analogWrite(M2_PWM_SPEED, M2_PWM);
-  digitalWrite(M2_ENABLE, DIGITAL_BASE_M2);
-
-  analogWrite(INX ? PWM_M1_IN1 : PWM_M1_IN2, M1_PWM);
-  analogWrite(INX ? PWM_M2_IN1 : PWM_M2_IN2, M2_PWM);
-  analogWrite(!INX ? PWM_M1_IN1 : PWM_M1_IN2, 0);
-  analogWrite(!INX ? PWM_M2_IN1 : PWM_M2_IN2, 0);
-
-  digitalWrite(!INX ? D_M1_IN1 : D_M1_IN2, false);
-  digitalWrite(!INX ? D_M2_IN1 : D_M2_IN2, false);
-  digitalWrite(INX ? D_M1_IN1 : D_M1_IN2, M1_DIGITAL);
-  digitalWrite(INX ? D_M2_IN1 : D_M2_IN2, M2_DIGITAL);
-}
-
-void checkConfig(ControllerPtr gamepad)
-{
-  if (!(flags & SELECT_PRESSED) && gamepad->miscSelect())
-  {
-    flags |= SELECT_PRESSED;
-    flags ^= AXIS_LY;
-  }
-  if ((flags & SELECT_PRESSED) && !gamepad->miscSelect())
-  {
-    flags &= ~SELECT_PRESSED;
-  }
-  if (!(flags & START_PRESSED) && gamepad->miscStart())
-  {
-    flags |= START_PRESSED;
-    flags ^= AXIS_RX;
-  }
-  if ((flags & START_PRESSED) && !gamepad->miscStart())
-  {
-    flags &= ~START_PRESSED;
-  }
-}
-
-void loop()
-{
-  BP32.update();
-  ControllerPtr Controller = Controllers[0];
-  if (Controller && Controller->isConnected() && Controller->isGamepad())
-  {
-    const int speed = handleDualSpeed(Controller, flags & AXIS_LY);
-    checkConfig(Controller);
-
-    if (speed != 0)
-      handleMovement(abs(speed), handleDirection(Controller, flags & AXIS_RX), speed > 0);
-    else
-    {
-      analogWrite(M1_PWM_SPEED, 0);
-      digitalWrite(M1_ENABLE, false);
-      analogWrite(M2_PWM_SPEED, 0);
-      digitalWrite(M2_ENABLE, false);
-
-      analogWrite(PWM_M1_IN1, 0);
-      analogWrite(PWM_M1_IN2, 0);
-      analogWrite(PWM_M2_IN1, 0);
-      analogWrite(PWM_M2_IN2, 0);
-
-      digitalWrite(D_M1_IN1, false);
-      digitalWrite(D_M1_IN2, false);
-      digitalWrite(D_M2_IN1, false);
-      digitalWrite(D_M2_IN2, false);
-    }
-  }
-
-  if (flags & BLINK)
-  {
-    digitalWrite(2, HIGH);
-    delay(100);
-    digitalWrite(2, LOW);
-    delay(85);
-  }
-  else
-  {
-    digitalWrite(2, HIGH);
-  }
-  delay(15);
-}
+ #include <Flagger.h>
+ #include <Arduino.h>
+ #include <Bluepad32.h>
+ #include "esp32/clk.h"
+ 
+ #define ENABLE_DIGITAL_OUT (1 << 0)
+ #define ENABLE_PWM_OUT (1 << 1)
+ #define ENABLE_EN_OUT (1 << 2)
+ #define ENABLE_SPEED_OUT (1 << 3)
+ #define HOLD_DIGITAL (1 << 4)
+ 
+ #define flags 0 | (ENABLE_PWM_OUT)
+ 
+ #if flags == 0
+   #error You did not declare any configuration.
+ #endif
+ #if flags >= (1 << 5)
+   #warning You declared a configuration that seems to be invalid, the code will compile but there will be no effect to that declared flag.
+ #endif
+ 
+ #define BLINK (1 << 0)           // Defines the mask of the bit on the index 0
+ #define AXIS_LY (1 << 1)         // Defines the mask of the bit on the index 1
+ #define AXIS_RX (1 << 2)         // Defines the mask of the bit on the index 2
+ #define SELECT_PRESSED (1 << 3)  // Defines the mask of the bit on the index 3
+ #define START_PRESSED (1 << 4)   // Defines the mask of the bit on the index 4
+ 
+ // Sets the game_flags to 0 and switch the bit on BLINK (index [0]) as true
+ uint8_t game_flags = 0 | BLINK;
+ 
+ int16_t exhibition_speed = 0;
+ 
+ // PIN_OUT
+ #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   const uint8_t D_M1_IN1 = 25;
+   const uint8_t D_M1_IN2 = 26;
+   const uint8_t D_M2_IN1 = 19;
+   const uint8_t D_M2_IN2 = 18;
+ #endif
+ #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT 
+   const uint8_t PWM_M1_IN1 = 27;
+   const uint8_t PWM_M1_IN2 = 14;
+   const uint8_t PWM_M2_IN1 = 17;
+   const uint8_t PWM_M2_IN2 = 16;
+ #endif
+ #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+   const uint8_t M1_ENABLE = 33;
+   const uint8_t M2_ENABLE = 22;
+ #endif
+ #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT 
+   const uint8_t M1_PWM_SPEED = 32;
+   const uint8_t M2_PWM_SPEED = 23;
+ #endif
+ 
+ // Instances a new void controller
+ ControllerPtr Controller = nullptr;
+ 
+ // Uses the flagger functions
+ using namespace flagger;
+ 
+ // Configure the joystick deadzone
+ const int JOYSTICK_DEAD_ZONE = 30;
+ 
+ void setup()
+ {
+   setCpuFrequencyMhz(240);
+   Serial.begin(115200);
+   pinMode(2, OUTPUT);
+ 
+   #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+     pinMode(D_M1_IN1, OUTPUT);
+     pinMode(D_M1_IN2, OUTPUT);
+     pinMode(D_M2_IN1, OUTPUT);
+     pinMode(D_M2_IN2, OUTPUT);
+   #endif
+   #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+     pinMode(PWM_M1_IN1, OUTPUT);
+     pinMode(PWM_M1_IN2, OUTPUT);
+     pinMode(PWM_M2_IN1, OUTPUT);
+     pinMode(PWM_M2_IN2, OUTPUT);
+   #endif
+   #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+     pinMode(M1_ENABLE, OUTPUT);
+     pinMode(M2_ENABLE, OUTPUT);
+   #endif
+   #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+     pinMode(M1_PWM_SPEED, OUTPUT);
+     pinMode(M2_PWM_SPEED, OUTPUT);
+   #endif
+ 
+   BP32.setup(&onConnectedController, &onDisconnectedController);
+   resetMotors();
+   BP32.forgetBluetoothKeys();
+ }
+ 
+ void onConnectedController(ControllerPtr gamepad)
+ {
+   if (Controller == nullptr)
+   {
+     Serial.print("--- Controller of ");
+     Serial.print(gamepad->getModelName());
+     Serial.println(" is connected ---");
+     Controller = gamepad;
+     remove(game_flags, BLINK);
+     digitalWrite(2, HIGH);
+     BP32.enableNewBluetoothConnections(false);
+   }
+   else
+   {
+     gamepad->disconnect();
+   }
+   
+   resetMotors();
+ }
+ 
+ void onDisconnectedController(ControllerPtr gamepad)
+ {
+   if (Controller == gamepad)
+   {
+     Serial.println("--- Controller is disconnected ---");
+     Controller = nullptr;
+     add(game_flags, BLINK);
+     game_flags |= BLINK;
+     resetMotors();
+     BP32.enableNewBluetoothConnections(true);
+   }
+ }
+ 
+ /**
+  * Just return a value from -255 to 255.
+  * The first value is the bluepad32's controller and the second value is a boolean who represents if the speed is from the left joystick or not
+  */
+ int16_t handleDualSpeed(ControllerPtr gamepad, bool joystick) {
+   int dpad_state_ud = gamepad->dpad();
+   if (dpad_state_ud & 1)
+     return 255;
+   if (dpad_state_ud & 2)
+     return -255;
+   if (joystick)
+   {
+     const int X = gamepad->axisX();
+     const int Y = gamepad->axisY() * -1;
+     const float distance = constrain(sqrt(X * X + Y * Y), JOYSTICK_DEAD_ZONE * 3, 511);
+     const uint8_t speed = map(round(distance), JOYSTICK_DEAD_ZONE * 3, 511, 0, 255);
+ 
+     return Y > 0 ? speed : speed * -1;
+   }
+ 
+   return (
+     // Gets the Right Bumper state    Gets the Trigger value and maps
+     gamepad->r1()             ? 255 : map(gamepad->throttle(), 0, 1023, 0, 255) //      Forward Speed (Right Trigger and Bumper)
+     // Gets the Left Bumper state     Gets the Left Trigger, invert sign value and maps
+      + (gamepad->l1()         ? 255 : map(gamepad->brake() * -1, 0, 1023, 0, 255))); // Backward Speed (Left Trigger and Bumper)
+ }
+ 
+ /**
+  * Just return a value from -1.0 to 1.0 with middle points like 0.55.
+  * The first value is the bluepad32's controller and the second value is a boolean who represents if the direction is from the right joystick or from the left stick
+  */
+ int handleDirection(ControllerPtr gamepad, bool joystick)
+ {
+   int dpad_state_lr = gamepad->dpad();
+   if (dpad_state_lr & 4)
+   {
+     return 100;
+   }
+ 
+   if (dpad_state_lr & 8)
+   {
+     return -100;
+   }
+ 
+   const int direction = ((joystick ? gamepad->axisRX() : gamepad->axisX()) / 512.0) * 100;
+   if (abs(direction) < JOYSTICK_DEAD_ZONE)
+     return 0;
+   int out = map(abs(direction), JOYSTICK_DEAD_ZONE, 90, 0, 100);
+   if(out > 100) out = 100;
+   return direction > 0 ? out : out * -1;
+ }
+ 
+ /// Resets the motors for safety
+ void resetMotors() {
+   #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+   // This only compiles if the flags has the flag for PWM Enable, aka: "Speed Out"
+     analogWrite(M1_PWM_SPEED, 0);
+     analogWrite(M2_PWM_SPEED, 0);
+   #endif // #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+ 
+   #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+   // This only compiles if the flags has the flag for Digital Enable
+     digitalWrite(M1_ENABLE, false);
+     digitalWrite(M2_ENABLE, false);
+   #endif // #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+ 
+   #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+     digitalWrite(D_M1_IN1, false);
+     digitalWrite(D_M2_IN1, false);
+     digitalWrite(D_M1_IN2, false);
+     digitalWrite(D_M2_IN2, false);
+   #endif // #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   
+   #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+   // This only compiles if the flags has the flag for PWM Output per In X
+     analogWrite(PWM_M1_IN1, 0);
+     analogWrite(PWM_M2_IN1, 0);
+     analogWrite(PWM_M1_IN2, 0);
+     analogWrite(PWM_M2_IN2, 0);
+   #endif // #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+ }
+ 
+ void handleMovement(ControllerPtr gamepad, uint8_t PWM, float DIRECTION, bool INX) {
+   const bool PANIC = gamepad->x();
+   const int M1_PWM = round(PWM * (DIRECTION < 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
+   const int M2_PWM = round(PWM * (DIRECTION > 0.0f ? 1.00f - fabs(DIRECTION) : 1.00f));
+ 
+   #if ((flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT) || ((flags & ENABLE_EN_OUT) == ENABLE_EN_OUT)
+   // This only compiles if the flags has the flag for Digital Enable or Digital Out per In X
+     const bool DIGITAL_BASE_M1 = (M1_PWM > 0);
+     const bool DIGITAL_BASE_M2 = (M2_PWM > 0);
+   #endif // #if ((flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT) || ((flags & ENABLE_EN_OUT) == ENABLE_EN_OUT)
+   
+   #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+   // This only compiles if the flags has the flag for PWM Enable, aka: "Speed Out"
+     analogWrite(M1_PWM_SPEED, M1_PWM);
+     analogWrite(M2_PWM_SPEED, M2_PWM);
+   #endif // #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+ 
+   #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+   // This only compiles if the flags has the flag for Digital Enable
+     digitalWrite(M1_ENABLE, DIGITAL_BASE_M1);
+     digitalWrite(M2_ENABLE, DIGITAL_BASE_M2);
+   #endif // #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+ 
+   #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   // This only compiles if the flags has the flag for Digital Output per In X
+     const bool HOLD = has(flags, HOLD_DIGITAL); // This checks if the flags has the flag to hold the digital pins
+     const bool DIGITAL_M1 = HOLD ? DIGITAL_BASE_M1 : !(DIRECTION < 0.0f);
+     const bool DIGITAL_M2 = HOLD ? DIGITAL_BASE_M2 : !(DIRECTION > 0.0f);
+     digitalWrite(!INX ? D_M1_IN1 : D_M1_IN2, DIGITAL_M1 && PANIC ? DIGITAL_M1 : false);
+     digitalWrite(!INX ? D_M2_IN1 : D_M2_IN2, DIGITAL_M2 && PANIC ? DIGITAL_M2 : false);
+     digitalWrite(INX ? D_M1_IN1 : D_M1_IN2, DIGITAL_M1 && PANIC ? false : DIGITAL_M1);
+     digitalWrite(INX ? D_M2_IN1 : D_M2_IN2, DIGITAL_M2 && PANIC ? false : DIGITAL_M2);
+   #endif // #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   
+   #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+   // This only compiles if the flags has the flag for PWM Output per In X
+     analogWrite(INX ? PWM_M1_IN1 : PWM_M1_IN2, M1_PWM < PWM && PANIC ? 0 : M1_PWM);
+     analogWrite(INX ? PWM_M2_IN1 : PWM_M2_IN2, M2_PWM < PWM && PANIC ? 0 : M2_PWM);
+     analogWrite(!INX ? PWM_M1_IN1 : PWM_M1_IN2, M1_PWM < PWM && PANIC ? 255 - M1_PWM : 0);
+     analogWrite(!INX ? PWM_M2_IN1 : PWM_M2_IN2, M2_PWM < PWM && PANIC ? 255 - M2_PWM : 0);
+   #endif // #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+ }
+ 
+ void checkConfig(ControllerPtr gamepad)
+ {
+   if (!has(game_flags, SELECT_PRESSED) && gamepad->miscSelect())
+   {
+     add(game_flags, SELECT_PRESSED);
+     toggle(game_flags, AXIS_LY);
+   }
+   if (has(game_flags, SELECT_PRESSED) && !gamepad->miscSelect())
+   {
+     remove(game_flags, SELECT_PRESSED);
+   }
+   if (!has(game_flags, START_PRESSED) && gamepad->miscStart())
+   {
+     add(game_flags, START_PRESSED);
+     toggle(game_flags, AXIS_RX);
+   }
+   if (has(game_flags, START_PRESSED) && !gamepad->miscStart())
+   {
+     toggle(game_flags, START_PRESSED);
+   }
+   if (gamepad->y())
+   {
+     exhibition_speed = handleDualSpeed(gamepad, game_flags & AXIS_LY);
+   }
+   if(exhibition_speed != 0 && gamepad->b()) {
+     exhibition_speed = 0;
+   }
+ }
+ 
+ void exhibition(int16_t PWM) {
+   #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+   // This only compiles if the flags has the flag for PWM Enable, aka: "Speed Out"
+     analogWrite(M1_PWM_SPEED, abs(PWM));
+     analogWrite(M2_PWM_SPEED, abs(PWM));
+   #endif // #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT
+ 
+   #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+   // This only compiles if the flags has the flag for Digital Enable
+     digitalWrite(M1_ENABLE, abs(PWM) > 0);
+     digitalWrite(M2_ENABLE, abs(PWM) > 0);
+   #endif // #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
+ 
+   #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   // This only compiles if the flags has the flag for Digital Output per In X
+     digitalWrite(PWM > 0 ? D_M1_IN1 : D_M1_IN2, true);
+     digitalWrite(!(PWM > 0) ? D_M1_IN1 : D_M1_IN2, false);
+     digitalWrite(PWM < 0 ? D_M2_IN1 : D_M2_IN2, true);
+     digitalWrite(!(PWM < 0) ? D_M2_IN1 : D_M2_IN2, false);
+   #endif // #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
+   
+   #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+   // This only compiles if the flags has the flag for PWM Output per In X
+     analogWrite(PWM > 0 ? PWM_M1_IN1 : PWM_M1_IN2, abs(PWM));
+     analogWrite(!(PWM > 0) ? PWM_M1_IN1 : PWM_M1_IN2, 0);
+     analogWrite(PWM < 0 ? PWM_M2_IN1 : PWM_M2_IN2, abs(PWM));
+     analogWrite(!(PWM < 0) ? PWM_M2_IN1 : PWM_M2_IN2, 0);
+   #endif // #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT
+ }
+ 
+ void loop()
+ {
+   BP32.update();
+   if (Controller && Controller->isConnected() && Controller->isGamepad())
+   {
+     checkConfig(Controller);
+ 
+     if(exhibition_speed != 0) {
+       exhibition(exhibition_speed);
+     } else {
+     const int16_t speed = handleDualSpeed(Controller, game_flags & AXIS_LY);
+       if (speed != 0)
+         handleMovement(Controller, abs(speed), float(handleDirection(Controller, game_flags & AXIS_RX)) / 100.0, speed > 0);
+       else
+         resetMotors();
+     }
+   }
+ 
+   if (has(game_flags, BLINK))
+   {
+     digitalWrite(2, HIGH);
+     delay(100);
+     digitalWrite(2, LOW);
+     delay(85);
+   }
+   delay(15);
+ }
