@@ -1,103 +1,165 @@
 # Robo-Futbol
 
-This project is created to manage cars using a single ESP32 and a single Bluetooth gamepad per car.
-It now uses the **MotorDriveUnit library** to simplify motor control, making it easier to read, maintain, and reuse with other APIs.
+This project is created to manage cars by means of an ESP32 or Arduino-compatible board and a single bluetooth or PS2 control per car.
 
----
+Supported controllers:
 
-## Installation to ESP32
+* Bluetooth gamepads via Bluepad32 (ESP32)
+* PS2 Wireless Controller (Arduino-compatible boards)
 
-1. Make sure you have the Arduino IDE installed. If not, download it [here](https://www.arduino.cc/en/software/#ide).
+## Installation for ESP32 (Bluepad32)
+
+1. You need to have installed the Arduino IDE. If not, download it from here: [Arduino IDE](https://www.arduino.cc/en/software/#ide).
 2. Go to Preferences (File > Preferences or Ctrl/⌘ + comma).
-3. In **Additional Boards Manager URLs**, paste the following:
+3. In “Additional boards manager URLs” paste the following:
 
 ```
 https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubusercontent.com/ricardoquesada/esp32-arduino-lib-builder/master/bluepad32_files/package_esp32_bluepad32_index.json
 ```
 
-4. Click OK, open the board manager, search for “esp32”, and install:
+4. Click OK and go to the board manager, then search for “esp32” and install `esp32` from *Espressif* and `esp32_bluepad32` from *Ricardo Quesada*.
+5. Once everything is installed, open the code, select your ESP32 board — **make sure you use the one from Ricardo Quesada and not Espressif**.
 
-   * `esp32` from **Espressif**
-   * `esp32_bluepad32` from **Ricardo Quesada**
-5. Open the code, select your ESP32 board — **make sure to use the Ricardo Quesada version for Bluepad32**.
-6. Before uploading, edit the **pin configuration section** in the sketch to select which pins will control the motors and whether PWM or digital outputs are used.
+## Installation for Arduino (PS2 Controller)
+
+1. Install Arduino IDE as above.
+2. Install the **PS2X library** via Library Manager (`Sketch > Include Library > Manage Libraries…` → search for `PS2X`).
+3. Connect your PS2 wireless receiver to the specified pins (see below).
 
 ---
 
-## Pin configuration
+## PinOut
 
-Instead of flags, the new version uses **defines** to choose which type of pins you want to use for motor and enable pins.
+> **Important:** All motor pins should be PWM pins. Digital pins can be used **only if explicitly configured** for the specific platform and use case.
 
-```cpp
-#define USE_PWM_MOTOR_PIN          // Use PWM pins for motors
-// #define USE_DIGITAL_MOTOR_PIN     // Use digital pins for motors
-
-// #define USE_PWM_ENABLE_PIN        // Use PWM for enable pins
-// #define USE_DIGITAL_ENABLE_PIN    // Use digital for enable pins
-```
-
-> ⚠️ You must choose **one and only one option** per group.
-> If you select both PWM and Digital for the same group, the compiler will show an error.
-
-### Default motor pinout:
+### ESP32
 
 ```cpp
 #define forward_left_pin 27
 #define backward_left_pin 14
 #define forward_right_pin 17
 #define backward_right_pin 16
+#define enable_left_pin 32   // Optional
+#define enable_right_pin 23  // Optional
 ```
 
-### Default enable pins (only active if `USE_PWM_ENABLE_PIN` or `USE_DIGITAL_ENABLE_PIN` is defined):
+### Arduino-compatible board (PS2)
 
 ```cpp
-#define enable_left_pin 32
-#define enable_right_pin 23
+#define forward_left_pin 9
+#define backward_left_pin 6
+#define forward_right_pin 5
+#define backward_right_pin 3
+#define enable_left_pin 10   // Optional
+#define enable_right_pin 11  // Optional
 ```
 
-If you don’t define any enable pins, the library automatically disables them using `PIN_UNUSED`.
+> Pins `enable_left_pin` and `enable_right_pin` are optional depending on whether you want PWM/digital enable functionality.
 
 ---
 
-## Gamepad configuration
+## Usage
 
-* **Power source / speed control** can be switched dynamically using the **Back/Select button**.
-* **Direction source / turning control** can be switched dynamically using the **Home/Start button**.
-* **Exposition mode (demo mode)** is activated by pressing the **Y button**.
-* **Manual drive** can be used by pressing **A**, allowing control via triggers and bumpers.
-* **Tank drive** is activated by pressing **X**.
+* **ESP32 (Bluepad32)**
+  The main code is `sources/esp32/esp32.ino`. Supports Bluetooth controllers. Use the flags at the top of the file to enable or disable digital/PWM outputs and speed outputs.
+
+* **Arduino-compatible (PS2)**
+  The main code is `sources/ps2x/ps2x.ino`. Supports PS2 controllers. Stick mappings:
+
+  * Left joystick → forward/backward (Y-axis)
+  * Right joystick → left/right (X-axis)
+  * Buttons for power/direction switching:
+
+    * **SELECT** → switch power source
+    * **START** → switch direction source
+    * **BLUE** → manual drive
+    * **GREEN** → exposition mode
+    * **PINK** → tank drive
 
 ---
 
-## Usage example
+## Configuration Flags
+
+### ESP32
 
 ```cpp
-motor_driver.setPowerSource(use_triggers);       // Use triggers for speed
-motor_driver.setDirectionSource(use_left_x_axis); // Use left joystick X-axis for turning
-motor_driver.setDeadzone(70);                   // Joystick deadzone
-motor_driver.begin();                            // Initialize motor driver
+#define USE_PWM_MOTOR_PIN
+// #define USE_DIGITAL_MOTOR_PIN
+// #define USE_PWM_ENABLE_PIN
+// #define USE_DIGITAL_ENABLE_PIN
+
+#if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
+    #error "You can only choose between using one or the other for the pins that control both motors."
+#endif
+
+#if (defined(USE_PWM_ENABLE_PIN) + defined(USE_DIGITAL_ENABLE_PIN)) > 1
+    #error "You can only choose between using one or the other so that the enable pins are PWM or not."
+#endif
+
+#ifdef USE_PWM_MOTOR_PIN
+  #define DIGITAL_DIRECTION false
+#else
+  #define DIGITAL_DIRECTION true
+#endif
+
+#define forward_left_pin 27
+#define backward_left_pin 14
+#define forward_right_pin 17
+#define backward_right_pin 16
+
+#if (defined(USE_PWM_ENABLE_PIN) || defined(USE_DIGITAL_ENABLE_PIN))
+  #define enable_left_pin 32
+  #define enable_right_pin 23
+#else
+  #define enable_left_pin Motor::PIN_UNUSED
+  #define enable_right_pin Motor::PIN_UNUSED
+#endif
+
+#ifdef USE_PWM_ENABLE_PIN
+  #define DIGITAL_ENABLE false
+#else
+  #define DIGITAL_ENABLE true
+#endif
 ```
 
-### Alternative example with left joystick as speed:
+### Arduino (PS2)
 
 ```cpp
-motor_driver.setPowerSource(use_left_y_axis);   // Use left joystick Y-axis for speed
-motor_driver.setDirectionSource(use_right_x_axis); // Use right joystick X-axis for turning
-motor_driver.begin();                            // Initialize motor driver
+#define USE_PWM_MOTOR_PIN
+// #define USE_DIGITAL_MOTOR_PIN
+// #define USE_PWM_ENABLE_PIN
+// #define USE_DIGITAL_ENABLE_PIN
+
+#if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
+    #error "You can only choose between using one or the other for the pins that control both motors."
+#endif
+
+#if (defined(USE_PWM_ENABLE_PIN) + defined(USE_DIGITAL_ENABLE_PIN)) > 1
+    #error "You can only choose between using one or the other so that the enable pins are PWM or not."
+#endif
+
+#ifdef USE_PWM_MOTOR_PIN
+  #define DIGITAL_DIRECTION false
+#else
+  #define DIGITAL_DIRECTION true
+#endif
+
+#define forward_left_pin 9
+#define backward_left_pin 6
+#define forward_right_pin 5
+#define backward_right_pin 3
+
+#if (defined(USE_PWM_ENABLE_PIN) || defined(USE_DIGITAL_ENABLE_PIN))
+  #define enable_left_pin 10
+  #define enable_right_pin 11
+#else
+  #define enable_left_pin Motor::PIN_UNUSED
+  #define enable_right_pin Motor::PIN_UNUSED
+#endif
+
+#ifdef USE_PWM_ENABLE_PIN
+  #define DIGITAL_ENABLE false
+#else
+  #define DIGITAL_ENABLE true
+#endif
 ```
-
-> The library handles all PWM/digital logic, stop/reset, and safety automatically.
-
----
-
-## Supported Gamepads
-
-* Check the latest [Bluepad32 supported gamepads](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/).
-
----
-
-## Notes
-
-* The onboard LED on pin 2 will **blink** when no controller is connected.
-* `MotorDriveUnit` allows easy migration to other APIs or hardware setups without changing the sketch logic.
-* The sketch is compatible with any ESP32-WROOM-32 series.

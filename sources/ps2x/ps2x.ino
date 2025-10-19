@@ -10,6 +10,11 @@
 #include <PS2X_lib.h>
 #include <MotorDriveUnit.h>
 
+#define USE_PWM_MOTOR_PIN
+// #define USE_DIGITAL_MOTOR_PIN
+// #define USE_PWM_ENABLE_PIN
+// #define USE_DIGITAL_ENABLE_PIN
+
 #if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
     #error "You can only choose between using one or the other for the pins that control both motors."
 #endif
