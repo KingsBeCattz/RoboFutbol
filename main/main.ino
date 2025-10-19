@@ -127,8 +127,8 @@ int16_t use_left_y_axis()
 {
   if (current_controller->r1() || current_controller->l1())
   {
-    uint8_t forward = (current_controller->r1() & 1) ? 255 : 0;
-    uint8_t backward = (current_controller->l1() & 2) ? 255 : 0;
+    uint8_t forward = current_controller->r1() ? 255 : 0;
+    uint8_t backward = current_controller->l1() ? 255 : 0;
 
     return forward - backward;
   }
