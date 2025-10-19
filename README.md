@@ -1,52 +1,103 @@
 # Robo-Futbol
 
-This project is created to manage cars by means of an single ESP32 and a single bluetooth control per car.
+This project is created to manage cars using a single ESP32 and a single Bluetooth gamepad per car.
+It now uses the **MotorDriveUnit library** to simplify motor control, making it easier to read, maintain, and reuse with other APIs.
+
+---
 
 ## Installation to ESP32
-1. You need to have installed the Arduino IDE. In case you don't have it, download it from here: [Click here](https://www.arduino.cc/en/software/#ide).
+
+1. Make sure you have the Arduino IDE installed. If not, download it [here](https://www.arduino.cc/en/software/#ide).
 2. Go to Preferences (File > Preferences or Ctrl/⌘ + comma).
-3. In “Additional boards manager URLs” paste the following:
+3. In **Additional Boards Manager URLs**, paste the following:
+
 ```
 https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubusercontent.com/ricardoquesada/esp32-arduino-lib-builder/master/bluepad32_files/package_esp32_bluepad32_index.json
 ```
-4. Click OK and go to the board manager, then search for “esp32” and install `esp32` from *Espressif* and `esp32_bluepad32` from *Ricardo Quesada*.
-5. Once everything is installed, open the code, select your ESP32 board — **make sure you use the one from Ricardo Quesada and not Espressif**.
-6. **Before uploading the code, edit line 19 to specify the flags for the outputs you will be using.** These flags determine which output modules will be enabled (e.g., digital outputs, PWM, etc.).
-   > *Note: A detailed pinout per flag is provided later in this README.*
-7. Congratulations, you may now proceed with connecting your H-bridges.
 
-## Explanation of the flags
-Line 19 looks like this:
+4. Click OK, open the board manager, search for “esp32”, and install:
+
+   * `esp32` from **Espressif**
+   * `esp32_bluepad32` from **Ricardo Quesada**
+5. Open the code, select your ESP32 board — **make sure to use the Ricardo Quesada version for Bluepad32**.
+6. Before uploading, edit the **pin configuration section** in the sketch to select which pins will control the motors and whether PWM or digital outputs are used.
+
+---
+
+## Pin configuration
+
+Instead of flags, the new version uses **defines** to choose which type of pins you want to use for motor and enable pins.
+
 ```cpp
- #define flags 0 | ()
-````
-There are several flags `ENABLE_DIGITAL_OUT`, `ENABLE_PWM_OUT`, `ENABLE_EN_OUT`, `ENABLE_SPEED_OUT`, and `HOLD_DIGITAL`.
+#define USE_PWM_MOTOR_PIN          // Use PWM pins for motors
+// #define USE_DIGITAL_MOTOR_PIN     // Use digital pins for motors
 
-You must include the flags you need inside the `()` with the `Or` (`|`) operator to add the flags.
-Example: ` #define flags 0 | (ENABLE_DIGITAL_OUT | HOLD_DIGITAL)`.
-
-## PinOut
-```cpp
- #if (flags & ENABLE_DIGITAL_OUT) == ENABLE_DIGITAL_OUT
-   const uint8_t D_M1_IN1 = 25;
-   const uint8_t D_M1_IN2 = 26;
-   const uint8_t D_M2_IN1 = 19;
-   const uint8_t D_M2_IN2 = 18;
- #endif
- #if (flags & ENABLE_PWM_OUT) == ENABLE_PWM_OUT 
-   const uint8_t PWM_M1_IN1 = 27;
-   const uint8_t PWM_M1_IN2 = 14;
-   const uint8_t PWM_M2_IN1 = 17;
-   const uint8_t PWM_M2_IN2 = 16;
- #endif
- #if (flags & ENABLE_EN_OUT) == ENABLE_EN_OUT
-   const uint8_t M1_ENABLE = 33;
-   const uint8_t M2_ENABLE = 22;
- #endif
- #if (flags & ENABLE_SPEED_OUT) == ENABLE_SPEED_OUT 
-   const uint8_t M1_PWM_SPEED = 32;
-   const uint8_t M2_PWM_SPEED = 23;
- #endif
+// #define USE_PWM_ENABLE_PIN        // Use PWM for enable pins
+// #define USE_DIGITAL_ENABLE_PIN    // Use digital for enable pins
 ```
 
-If you understand how the flags work, you will see which pinouts are valid when one flag or the other is active.
+> ⚠️ You must choose **one and only one option** per group.
+> If you select both PWM and Digital for the same group, the compiler will show an error.
+
+### Default motor pinout:
+
+```cpp
+#define forward_left_pin 27
+#define backward_left_pin 14
+#define forward_right_pin 17
+#define backward_right_pin 16
+```
+
+### Default enable pins (only active if `USE_PWM_ENABLE_PIN` or `USE_DIGITAL_ENABLE_PIN` is defined):
+
+```cpp
+#define enable_left_pin 32
+#define enable_right_pin 23
+```
+
+If you don’t define any enable pins, the library automatically disables them using `PIN_UNUSED`.
+
+---
+
+## Gamepad configuration
+
+* **Power source / speed control** can be switched dynamically using the **Back/Select button**.
+* **Direction source / turning control** can be switched dynamically using the **Home/Start button**.
+* **Exposition mode (demo mode)** is activated by pressing the **Y button**.
+* **Manual drive** can be used by pressing **A**, allowing control via triggers and bumpers.
+* **Tank drive** is activated by pressing **X**.
+
+---
+
+## Usage example
+
+```cpp
+motor_driver.setPowerSource(use_triggers);       // Use triggers for speed
+motor_driver.setDirectionSource(use_left_x_axis); // Use left joystick X-axis for turning
+motor_driver.setDeadzone(70);                   // Joystick deadzone
+motor_driver.begin();                            // Initialize motor driver
+```
+
+### Alternative example with left joystick as speed:
+
+```cpp
+motor_driver.setPowerSource(use_left_y_axis);   // Use left joystick Y-axis for speed
+motor_driver.setDirectionSource(use_right_x_axis); // Use right joystick X-axis for turning
+motor_driver.begin();                            // Initialize motor driver
+```
+
+> The library handles all PWM/digital logic, stop/reset, and safety automatically.
+
+---
+
+## Supported Gamepads
+
+* Check the latest [Bluepad32 supported gamepads](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/).
+
+---
+
+## Notes
+
+* The onboard LED on pin 2 will **blink** when no controller is connected.
+* `MotorDriveUnit` allows easy migration to other APIs or hardware setups without changing the sketch logic.
+* The sketch is compatible with any ESP32-WROOM-32 series.
