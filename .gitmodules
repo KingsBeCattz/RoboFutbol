@@ -1,3 +1,6 @@
 [submodule "libraries/MotorDriveUnit"]
 	path = libraries/MotorDriveUnit
 	url = https://github.com/KingsBeCattz/MotorDriveUnit.git
+[submodule "libraries/PS2X"]
+	path = libraries/PS2X
+	url = https://github.com/madsci1016/Arduino-PS2X.git
