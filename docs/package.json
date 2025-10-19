@@ -3,11 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "bunx astro dev",
+    "start": "bunx astro dev",
+    "build": "bunx astro build",
+    "preview": "bunx astro preview",
+    "astro": "bunx astro"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.34.4",
