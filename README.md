@@ -18,13 +18,13 @@ https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubuserconte
 ```
 
 4. Click OK and go to the board manager, then search for “esp32” and install `esp32` from *Espressif* and `esp32_bluepad32` from *Ricardo Quesada*.
-5. Download or clone the [MotorDriveUnit library](./libraries/MotorDriveUnit) as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit`).
+5. Download or clone the [MotorDriveUnit library](./libraries/) as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit`).
 6. Once everything is installed, open the code, select your ESP32 board — **make sure you use the one from Ricardo Quesada and not Espressif**.
 
 ## Installation for Arduino (PS2 Controller)
 
 1. Install Arduino IDE as above.
-2. Download or clone the [MotorDriveUnit library](./libraries/MotorDriveUnit) and [PS2X library](./libraries/PSX2/PS2X_lib), both as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit` and `PS2X`).
+2. Download or clone the [MotorDriveUnit library](./libraries/) and [PS2X library](./libraries/), both as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit` and `PS2X`).
 3. Connect your PS2 wireless receiver to the specified pins (see below).
 
 ---
