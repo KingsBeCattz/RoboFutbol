@@ -18,19 +18,20 @@ https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubuserconte
 ```
 
 4. Click OK and go to the board manager, then search for “esp32” and install `esp32` from *Espressif* and `esp32_bluepad32` from *Ricardo Quesada*.
-5. Once everything is installed, open the code, select your ESP32 board — **make sure you use the one from Ricardo Quesada and not Espressif**.
+5. Download or clone the [MotorDriveUnit library](./libraries/MotorDriveUnit) as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit`).
+6. Once everything is installed, open the code, select your ESP32 board — **make sure you use the one from Ricardo Quesada and not Espressif**.
 
 ## Installation for Arduino (PS2 Controller)
 
 1. Install Arduino IDE as above.
-2. Install the **PS2X library** via Library Manager (`Sketch > Include Library > Manage Libraries…` → search for `PS2X`).
+2. Download or clone the [MotorDriveUnit library](./libraries/MotorDriveUnit) and [PS2X library](./libraries/PSX2/PS2X_lib), both as .ZIP and install it via Library Manager (`Sketch > Include Library > Add .ZIP library` → search for `MotorDriveUnit` and `PS2X`).
 3. Connect your PS2 wireless receiver to the specified pins (see below).
 
 ---
 
 ## PinOut
 
-> **Important:** All motor pins should be PWM pins. Digital pins can be used **only if explicitly configured** for the specific platform and use case.
+> **Important:** All pins should be PWM pins. Digital pins can be used **only if explicitly configured** for the specific platform and use case.
 
 ### ESP32
 
@@ -72,94 +73,30 @@ https://dl.espressif.com/dl/package_esp32_index.json,https://raw.githubuserconte
 
     * **SELECT** → switch power source
     * **START** → switch direction source
-    * **BLUE** → manual drive
-    * **GREEN** → exposition mode
-    * **PINK** → tank drive
+    * **CROSS** → manual drive
+    * **TRIANGLE** → exposition mode
+    * **SQUARE** → tank drive
 
 ---
 
 ## Configuration Flags
 
-### ESP32
+The configuration is divided into two groups: the pins that control the direction of the motor and the other two pins that enable the H-bridge of each motor.
 
+To use a configuration by group, you must uncomment the one you want to use. Only one should be used at a time.
+
+### Motor direction pins
+USE_PWM_MOTOR_PIN -> Indicates that pwm pins will be used.
+USE_DIGITAL_MOTOR_PIN -> Indicates that digital pins will be used.
 ```cpp
-#define USE_PWM_MOTOR_PIN
+// #define USE_PWM_MOTOR_PIN
 // #define USE_DIGITAL_MOTOR_PIN
-// #define USE_PWM_ENABLE_PIN
-// #define USE_DIGITAL_ENABLE_PIN
-
-#if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
-    #error "You can only choose between using one or the other for the pins that control both motors."
-#endif
-
-#if (defined(USE_PWM_ENABLE_PIN) + defined(USE_DIGITAL_ENABLE_PIN)) > 1
-    #error "You can only choose between using one or the other so that the enable pins are PWM or not."
-#endif
-
-#ifdef USE_PWM_MOTOR_PIN
-  #define DIGITAL_DIRECTION false
-#else
-  #define DIGITAL_DIRECTION true
-#endif
-
-#define forward_left_pin 27
-#define backward_left_pin 14
-#define forward_right_pin 17
-#define backward_right_pin 16
-
-#if (defined(USE_PWM_ENABLE_PIN) || defined(USE_DIGITAL_ENABLE_PIN))
-  #define enable_left_pin 32
-  #define enable_right_pin 23
-#else
-  #define enable_left_pin Motor::PIN_UNUSED
-  #define enable_right_pin Motor::PIN_UNUSED
-#endif
-
-#ifdef USE_PWM_ENABLE_PIN
-  #define DIGITAL_ENABLE false
-#else
-  #define DIGITAL_ENABLE true
-#endif
 ```
 
-### Arduino (PS2)
-
+### Enable pins
+USE_PWM_ENABLE_PIN -> Indicates that pwm pins will be used.
+USE_DIGITAL_ENABLE_PIN -> Indicates that digital pins will be used.
 ```cpp
-#define USE_PWM_MOTOR_PIN
-// #define USE_DIGITAL_MOTOR_PIN
 // #define USE_PWM_ENABLE_PIN
 // #define USE_DIGITAL_ENABLE_PIN
-
-#if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
-    #error "You can only choose between using one or the other for the pins that control both motors."
-#endif
-
-#if (defined(USE_PWM_ENABLE_PIN) + defined(USE_DIGITAL_ENABLE_PIN)) > 1
-    #error "You can only choose between using one or the other so that the enable pins are PWM or not."
-#endif
-
-#ifdef USE_PWM_MOTOR_PIN
-  #define DIGITAL_DIRECTION false
-#else
-  #define DIGITAL_DIRECTION true
-#endif
-
-#define forward_left_pin 9
-#define backward_left_pin 6
-#define forward_right_pin 5
-#define backward_right_pin 3
-
-#if (defined(USE_PWM_ENABLE_PIN) || defined(USE_DIGITAL_ENABLE_PIN))
-  #define enable_left_pin 10
-  #define enable_right_pin 11
-#else
-  #define enable_left_pin Motor::PIN_UNUSED
-  #define enable_right_pin Motor::PIN_UNUSED
-#endif
-
-#ifdef USE_PWM_ENABLE_PIN
-  #define DIGITAL_ENABLE false
-#else
-  #define DIGITAL_ENABLE true
-#endif
 ```
