@@ -1,0 +1,3 @@
+[submodule "libraries/MotorDriveUnit"]
+	path = libraries/MotorDriveUnit
+	url = https://github.com/KingsBeCattz/MotorDriveUnit.git
