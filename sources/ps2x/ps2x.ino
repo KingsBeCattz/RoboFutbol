@@ -16,17 +16,17 @@
 // #define USE_DIGITAL_ENABLE_PIN
 
 #if (defined(USE_PWM_MOTOR_PIN) + defined(USE_DIGITAL_MOTOR_PIN)) != 1
-    #error "You can only choose between using one or the other for the pins that control both motors."
+#error "You can only choose between using one or the other for the pins that control both motors."
 #endif
 
 #if (defined(USE_PWM_ENABLE_PIN) + defined(USE_DIGITAL_ENABLE_PIN)) > 1
-    #error "You can only choose between using one or the other so that the enable pins are PWM or not."
+#error "You can only choose between using one or the other so that the enable pins are PWM or not."
 #endif
 
 #ifdef USE_PWM_MOTOR_PIN
-  #define DIGITAL_DIRECTION false
+#define DIGITAL_DIRECTION false
 #else
-  #define DIGITAL_DIRECTION true
+#define DIGITAL_DIRECTION true
 #endif
 
 #define forward_left_pin 9
@@ -35,17 +35,17 @@
 #define backward_right_pin 3
 
 #if (defined(USE_PWM_ENABLE_PIN) || defined(USE_DIGITAL_ENABLE_PIN))
-  #define enable_left_pin 10
-  #define enable_right_pin 11
+#define enable_left_pin 10
+#define enable_right_pin 11
 #else
-  #define enable_left_pin Motor::PIN_UNUSED
-  #define enable_right_pin Motor::PIN_UNUSED
+#define enable_left_pin Motor::PIN_UNUSED
+#define enable_right_pin Motor::PIN_UNUSED
 #endif
 
 #ifdef USE_PWM_ENABLE_PIN
-  #define DIGITAL_ENABLE false
+#define DIGITAL_ENABLE false
 #else
-  #define DIGITAL_ENABLE true
+#define DIGITAL_ENABLE true
 #endif
 
 PS2X ps2x;
@@ -53,9 +53,6 @@ MotorDriveUnit motor_driver(DIGITAL_DIRECTION, DIGITAL_ENABLE, forward_left_pin,
 
 uint8_t left_stick[2] = {128, 128};
 uint8_t right_stick[2] = {128, 128};
-
-uint8_t *x_stick = right_stick;
-uint8_t *y_stick = left_stick;
 
 // --- Stick helpers ---
 inline int16_t map_stick(uint8_t value)
@@ -70,12 +67,22 @@ inline int16_t map_stick(uint8_t value)
 
 inline int16_t use_left_y_axis()
 {
-  return map_stick(y_stick[1]);
+  return map_stick(left_stick[1]);
+}
+
+inline int16_t use_right_y_axis()
+{
+  return map_stick(right_stick[1]);
 }
 
 inline int16_t use_left_x_axis()
 {
-  return map_stick(x_stick[0]);
+  return map_stick(left_stick[0]);
+}
+
+inline int16_t use_right_x_axis()
+{
+  return map_stick(right_stick[0]);
 }
 
 void set_stick_position(uint8_t (&stick)[2], uint8_t x, uint8_t y)
@@ -89,7 +96,7 @@ void switch_power_source()
 {
   int16_t (*current_source)() = motor_driver.getPowerSourceFunction();
   if (current_source == use_left_y_axis)
-    motor_driver.setPowerSource(use_left_x_axis);
+    motor_driver.setPowerSource(use_right_y_axis);
   else
     motor_driver.setPowerSource(use_left_y_axis);
 }
@@ -97,10 +104,10 @@ void switch_power_source()
 void switch_direction_source()
 {
   int16_t (*current_source)() = motor_driver.getDirectionSourceFunction();
-  if (current_source == use_left_x_axis)
-    motor_driver.setDirectionSource(use_left_y_axis);
-  else
+  if (current_source == use_right_x_axis)
     motor_driver.setDirectionSource(use_left_x_axis);
+  else
+    motor_driver.setDirectionSource(use_right_x_axis);
 }
 
 void setup()
@@ -111,7 +118,7 @@ void setup()
   motor_driver.begin();
   motor_driver.setDeadzone(70);
   motor_driver.setPowerSource(use_left_y_axis);
-  motor_driver.setDirectionSource(use_left_x_axis);
+  motor_driver.setDirectionSource(use_right_x_axis);
 
   switch (ps2x.config_gamepad(4, 12, 7, 13, false, false))
   {
@@ -143,8 +150,8 @@ void loop()
 
   if (ps2x.Button(PSB_BLUE))
   {
-    int16_t left_power = map_stick(y_stick[0]);
-    int16_t right_power = map_stick(y_stick[0]);
+    int16_t left_power = map_stick(left_stick[1]);
+    int16_t right_power = map_stick(right_stick[1]);
     motor_driver.useManualDrive(static_cast<uint8_t>(abs(left_power)), left_power >= 0, static_cast<uint8_t>(abs(right_power)), right_power >= 0);
   }
 

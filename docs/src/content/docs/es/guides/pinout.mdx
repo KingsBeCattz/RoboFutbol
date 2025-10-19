@@ -1,82 +1,84 @@
 ---
-title: Pinout
-description: PinOut que puedes utilizar en tu beneficio.
+title: "Pinout"
+description: "PinOut que puedes usar a tu favor."
 ---
-import { LinkCard, Aside } from '@astrojs/starlight/components';
+import { LinkCard, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Aside type="caution">
-Este proyecto fue construido usando el microcontrolador ESP32, si no tienes experiencia usándolo te recomendamos ver los tutoriales de introducción.
+Este proyecto fue construido utilizando **microcontroladores ESP32 y compatibles con Arduino**.  
+Si no tienes experiencia usándolos, te recomendamos revisar algunos tutoriales introductorios antes de continuar.
 </Aside>
 
-| Pin | Motor | Entrada | Tipo |
-|---|---|---|---|
-| GPIO 25 | Motor 1 | IN1 | DIGITAL |
-| GPIO 26 | Motor 1 | IN2 | DIGITAL |
-| GPIO 27 | Motor 1 | IN1 | PWM |
-| GPIO 14 | Motor 1 | IN2 | PWM |
-| GPIO 33 | Motor 1 | ENABLE | DIGITAL |
-| GPIO 32 | Motor 1 | PWM VELOCIDAD | PWM |
-| GPIO 19 | Motor 2 | IN1 | DIGITAL |
-| GPIO 18 | Motor 2 | IN2 | DIGITAL |
-| GPIO 17 | Motor 2 | IN1 | PWM |
-| GPIO 16 | Motor 2 | IN2 | PWM |
-| GPIO 22 | Motor 2 | ENABLE | DIGITAL |
-| GPIO 23 | Motor 2 | PWM VELOCIDAD | PWM |
+<Tabs syncKey='board'>
+  <TabItem label="ESP32 (Bluepad32)">
+    | Pin | Motor | Función | Tipo |
+    |---|---|---|---|
+    | GPIO 27 | Motor 1 | Adelante | PWM/DIGITAL |
+    | GPIO 14 | Motor 1 | Reversa | PWM/DIGITAL |
+    | GPIO 32 | Motor 1 | ENABLE (opcional) | PWM/DIGITAL |
+    | GPIO 17 | Motor 2 | Adelante | PWM/DIGITAL |
+    | GPIO 16 | Motor 2 | Reversa | PWM/DIGITAL |
+    | GPIO 23 | Motor 2 | ENABLE (opcional) | PWM/DIGITAL |
 
-<Aside type="tip">
-Los pines **GPIO 33** (Motor 1) y **GPIO 22** (Motor 2) funcionan como pines **ENABLE digitales**, usados para habilitar el motor mediante una señal simple de encendido/apagado.  
-Los pines **GPIO 32** y **GPIO 23** permiten controlar la velocidad mediante una señal PWM dedicada y separada de IN1 e IN2.
-</Aside>
+    <Aside type="tip">
+    Los pines **32** (Motor 1) y **23** (Motor 2) actúan como **pines ENABLE PWM/digital opcionales** para el control independiente de cada motor.
+    </Aside>
+  </TabItem>
+  <TabItem label="Arduino (PS2X)">
+    | Pin | Motor | Función | Tipo |
+    |---|---|---|---|
+    | 9  | Motor 1 | Adelante | PWM/DIGITAL |
+    | 6  | Motor 1 | Reversa | PWM/DIGITAL |
+    | 10 | Motor 1 | ENABLE (opcional) | PWM/DIGITAL |
+    | 5  | Motor 2 | Adelante | PWM/DIGITAL |
+    | 3  | Motor 2 | Reversa | PWM/DIGITAL |
+    | 11 | Motor 2 | ENABLE (opcional) | PWM/DIGITAL |
 
-<Aside type="tip">
-Si tu puente H solo requiere señales PWM en IN1 e IN2, basta con usar la bandera `ENABLE_PWM_OUT`.
-
-Por otro lado, si también usas salidas digitales (`ENABLE_DIGITAL_OUT`), puedes lograr un comportamiento más suave activando la bandera `HOLD_DIGITAL`.
-
-Esta bandera **mantiene los pines digitales activos** incluso cuando la velocidad no es del 100%, permitiendo que el motor mantenga dirección aunque se esté moviendo lento.  
-> Esto reemplaza la técnica anterior de poner un puente físico entre GPIO 32 y GND para evitar apagones del motor en bajas velocidades.
-</Aside>
-
-## Configuración por flags
-
-Puedes controlar qué pines se activan mediante las siguientes banderas, combinables mediante operador `|` en tiempo de compilación:
-
-```cpp
-// Banderas disponibles
-#define ENABLE_DIGITAL_OUT (1 << 0)  // Usa salidas digitales en IN1/IN2 (ON/OFF)
-#define ENABLE_PWM_OUT     (1 << 1)  // Usa PWM en IN1/IN2
-#define ENABLE_EN_OUT      (1 << 2)  // Usa pines ENABLE digitales (encendido)
-#define ENABLE_SPEED_OUT   (1 << 3)  // Usa pines PWM dedicados para velocidad
-#define HOLD_DIGITAL       (1 << 4)  // Mantiene IN1/IN2 activos aunque la velocidad no sea 100%
-
-// Ejemplo básico: solo PWM en IN1/IN2
-#define flags (ENABLE_PWM_OUT)
-
-// Ejemplo completo: PWM + ENABLE + control de velocidad + retención digital
-#define flags (ENABLE_PWM_OUT | ENABLE_EN_OUT | ENABLE_SPEED_OUT | ENABLE_DIGITAL_OUT | HOLD_DIGITAL)
-```
-
-### ¿Qué hace `HOLD_DIGITAL`?
-
-Cuando activas `HOLD_DIGITAL`, las salidas digitales (IN1 o IN2) **se mantienen encendidas mientras haya dirección**, **aunque la velocidad sea baja**.
-
-Esto previene que el motor se "apague" cuando el valor de dirección no alcanza el 100%, por ejemplo, en rangos del 10% al 90%, evitando tirones y favoreciendo un giro continuo.
-
-> ⚠️ Si no usas `HOLD_DIGITAL`, los pines digitales se apagan automáticamente cuando la dirección no llega al 100%, provocando pausas o cortes en el giro del motor.
+    <Aside type="tip">
+    Los pines **10** (Motor 1) y **11** (Motor 2) actúan como **pines ENABLE PWM/digital opcionales** para el control independiente de cada motor.
+    </Aside>
+  </TabItem>
+</Tabs>
 
 ---
 
-## Tabla lógica de uso de pines según `flags`
+## Flags de Configuración
 
-| Flag Activa | Pines Activados | Descripción |
-|-------------|------------------|-------------|
-| `ENABLE_DIGITAL_OUT` | `GPIO 25`, `GPIO 26`, `GPIO 19`, `GPIO 18` | Usa IN1 e IN2 como salidas digitales puras (ON/OFF) |
-| `ENABLE_PWM_OUT`     | `GPIO 27`, `GPIO 14`, `GPIO 17`, `GPIO 16` | Usa IN1 e IN2 como salidas PWM para control por modulación |
-| `ENABLE_EN_OUT`      | `GPIO 33`, `GPIO 22` | Pines digitales dedicados de habilitación para el motor |
-| `ENABLE_SPEED_OUT`   | `GPIO 32`, `GPIO 23` | Pines PWM dedicados para control de velocidad |
-| `HOLD_DIGITAL`       | *Depende de dirección* + `ENABLE_DIGITAL_OUT` | Mantiene activos los pines digitales incluso con velocidad < 100% |
+La configuración se divide en dos grupos:  
+los pines que controlan la **dirección del motor** y los pines que **habilitan el puente H** de cada motor.  
+Solo **una opción por grupo** debe estar activa a la vez.
+
+### Pines de dirección del motor
+
+```cpp
+// #define USE_PWM_MOTOR_PIN      // Usa pines PWM para dirección del motor
+// #define USE_DIGITAL_MOTOR_PIN  // Usa pines digitales para dirección del motor
+```
+
+### Pines de habilitación (ENABLE)
+
+```cpp
+// #define USE_PWM_ENABLE_PIN     // Usa pines PWM para habilitar el motor
+// #define USE_DIGITAL_ENABLE_PIN // Usa pines digitales para habilitar el motor
+```
 
 <Aside type="note">
-⚠️ La bandera `HOLD_DIGITAL` **no activa pines por sí sola**, sino que **modifica el comportamiento** de `ENABLE_DIGITAL_OUT`.  
-Cuando está activa, evita que IN1 o IN2 se apaguen si la velocidad es baja pero aún hay dirección.
+Descomenta solo la opción que necesites para cada grupo.  
+Por ejemplo, si quieres dirección PWM y habilitación digital, descomenta:
+
+```cpp
+#define USE_PWM_MOTOR_PIN
+#define USE_DIGITAL_ENABLE_PIN
+```
 </Aside>
+
+---
+
+## Tabla Lógica: Pines activos según configuración
+
+| Configuración              | Pines usados en ESP32 | Pines usados en Arduino | Descripción                                                |
+|----------------------------|-----------------------|-------------------------|------------------------------------------------------------|
+| Dirección PWM del motor    | GPIO 27, 14, 17, 16   | 9, 6, 5, 3              | IN1 ... IN4 controlados mediante PWM                       |
+| Dirección DIGITAL del motor| GPIO 27, 14, 17, 16   | 9, 6, 5, 3              | IN1 ... IN4 controlados con encendido/apagado digital      |
+| ENABLE PWM                 | GPIO 32, 23           | 10, 11                  | Pines PWM dedicados para control de velocidad/habilitación |
+| ENABLE DIGITAL             | GPIO 32, 23           | 10, 11                  | Pines digitales dedicados como ENABLE                      |

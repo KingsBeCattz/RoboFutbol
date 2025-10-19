@@ -6,18 +6,23 @@ import { LinkCard, Aside } from '@astrojs/starlight/components';
 
 Our guide provides support for multiple gamepads — [click here to view the list of supported controllers](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/) — as well as compatibility with various types of H-bridges.
 
-The system includes multiple control modes, **all configurable** at runtime:
+The system supports both **ESP32 with Bluetooth controllers** and **Arduino-compatible boards with PS2 controllers**, with multiple control modes configurable at runtime:
 
-- By default, speed is modulated using the **triggers** (RT/LT), and turning is controlled with the **left stick's X axis**.
-- The **Select** button works as a toggle: pressing it switches speed control to the **left stick's Y axis**; pressing it again returns to the previous mode.
-- The **Start** button also acts as a toggle: it switches turn control to the **right stick's X axis**, and toggles back with another press.
+- **ESP32 (Bluepad32)**: speed is modulated using the **triggers** (RT/LT), and turning is controlled with the **left stick's X axis** by default.
+- **Arduino (PS2)**: left joystick → forward/backward (Y-axis), right joystick → left/right (X-axis).  
+- Buttons control mode/power switching:
+  - **SELECT** → switch power source
+  - **START** → switch direction source
+  - **X on Xbox / Square on PlayStation / Y on Nintendo** → manual drive
+  - **Y on Xbox / Triangle on PlayStation / X on Nintendo** → exposition mode
+  - **A on Xbox / Cross on PlayStation / B on Nintendo** → tank drive
 - You can also use the **d-pad** as a universal directional controller.
-- If you're turning and press the **X button on Xbox** (or **Square on PlayStation**, **Y on Nintendo**), a **sharp/quick turn** is triggered immediately.
 
 <Aside type="caution">
-This project is built to run on the **ESP32 microcontroller**.  
-If you’re not familiar with it, we recommend reviewing some introductory tutorials before continuing.
+This project is built to run on **ESP32 and Arduino-compatible microcontrollers**.  
+If you’re not familiar with them, we recommend reviewing some introductory tutorials before continuing.
 </Aside>
 
 <LinkCard title="PinOut" href="/en/guides/pinout/" />
 <LinkCard title="H-Bridge Support" href="/en/guides/hbridge/" />
+<LinkCard title="Installation Guide" href="/en/guides/installation/" />

@@ -1,23 +1,28 @@
 ---
-title: Características
-description: Conozca todas las funciones que le ofrecemos.
+title: "Características"
+description: "Conoce todas las funciones que te ofrecemos."
 ---
 import { LinkCard, Aside } from '@astrojs/starlight/components';
 
-Nuestra guía ofrece soporte para múltiples gamepads — [haz clic aquí para ver la lista de controladores compatibles](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/) — así como compatibilidad con diversos tipos de puentes H.
+Nuestra guía ofrece soporte para múltiples gamepads — [haz clic aquí para ver la lista de controladores compatibles](https://bluepad32.readthedocs.io/en/latest/supported_gamepads/) — así como compatibilidad con varios tipos de puentes H (*H-bridges*).
 
-El sistema incluye múltiples formas de control, **todas configurables** en tiempo de ejecución:
+El sistema soporta tanto **ESP32 con controladores Bluetooth** como **boards compatibles con Arduino con controladores PS2**, ofreciendo múltiples modos de control configurables en tiempo de ejecución:
 
-- Por defecto, puedes modular la velocidad usando los **gatillos** (RT/LT) y controlar el giro con el **eje X del stick izquierdo**.
-- El botón **Select** funciona como un interruptor: al presionarlo, el control de velocidad cambia al **eje Y del stick izquierdo**; al volver a presionarlo, regresa al modo anterior.
-- El botón **Start** también actúa como un interruptor: permite cambiar el control de giro al **eje X del stick derecho**, y alternar de nuevo con otra pulsación.
-- También puedes usar el **d-pad** como un control universal para movimientos básicos.
-- Si, mientras estás girando, presionas el botón **X de Xbox** (equivalente a **Cuadrado en PlayStation** o **Y en Nintendo**), se ejecuta un **giro brusco inmediato**.
+- **ESP32 (Bluepad32)**: la velocidad se modula usando los **triggers** (RT/LT), y el giro se controla con el **eje X del stick izquierdo** por defecto.
+- **Arduino (PS2)**: el joystick izquierdo → avanzar/retroceder (eje Y), el joystick derecho → izquierda/derecha (eje X).  
+- Los botones controlan los modos o el cambio de fuente de potencia:
+  - **SELECT** → cambia la fuente de potencia
+  - **START** → cambia la fuente de dirección
+  - **X en Xbox / Cuadro en PlayStation / Y en Nintendo** → conducción manual
+  - **Y en Xbox / Triángulo en PlayStation / X en Nintendo** → modo exposición
+  - **A en Xbox / Cruz en PlayStation / B en Nintendo** → modo tanque
+- También puedes usar el **d-pad** como controlador direccional universal.
 
 <Aside type="caution">
-Este proyecto está diseñado para funcionar con el microcontrolador **ESP32**.  
-Si no tienes experiencia previa con él, te recomendamos consultar primero algunos tutoriales de introducción.
+Este proyecto está diseñado para ejecutarse en **microcontroladores ESP32 y boards compatibles con Arduino**.  
+Si no estás familiarizado con ellos, te recomendamos revisar algunos tutoriales introductorios antes de continuar.
 </Aside>
 
 <LinkCard title="PinOut" href="/es/guides/pinout/" />
-<LinkCard title="Soporte de Puentes H" href="/es/guides/hbridge/" />
+<LinkCard title="Soporte para Puente H" href="/es/guides/hbridge/" />
+<LinkCard title="Guía de Instalación" href="/es/guides/installation/" />

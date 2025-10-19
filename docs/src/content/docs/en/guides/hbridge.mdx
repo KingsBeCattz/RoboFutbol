@@ -3,12 +3,12 @@ title: "H-bridge support"
 description: "Let's see how to use any H-bridge with us."
 ---
 import { LinkCard, Aside, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
-import { Accordion, AccordionItem } from 'accessible-astro-components';
 
-Our code, besides supporting several gamepads thanks to Bluepad32, also supports several H-bridges thanks to its pinout, here we show you which H-bridges we support and how to use them.
+Our code, besides supporting several gamepads thanks to Bluepad32, also supports several H-bridges thanks to its pinout. The examples shown here apply for both **ESP32 (Bluepad32)** and **Arduino-compatible boards (PS2)**.
 
 <Aside type="caution">
-This project was built using the ESP32 microcontroller, if you don't have experience using it we recommend you to watch the intro tutorials.
+This project was built using **ESP32 and Arduino-compatible microcontrollers**.  
+If you don't have experience using them, we recommend you to watch some introductory tutorials.
 </Aside>
 
 <Tabs syncKey='hbridges'>
@@ -53,7 +53,8 @@ This project was built using the ESP32 microcontroller, if you don't have experi
   </TabItem>
 </Tabs>
 
-As you can see, absolutely all of these examples have one thing in common, the presence of an IN1 and IN2 to control the direction of a motor, in our code there is support for a maximum of two motors and 2 interfaces:
+As you can see, absolutely all of these examples have one thing in common: the presence of **IN1/IN3 and IN2/IN4** to control the direction of a motor.  
+In our code there is support for a maximum of **two motors** and **two interfaces**:
 - Classic interface - Simple HIGH or LOW output
 - PWM interface - PWM output from 0 to 255
 

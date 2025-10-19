@@ -1,56 +1,63 @@
 ---
-title: Controles
-description: Controles que puedes usar para manejar el coche.
+title: "Controles"
+description: "Cómo controlar tu robot con un gamepad."
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-## Controles globales
-<Card
-  title="Usando el dpad"
->
-  <video src="/d_pad_example.mp4" loop autoplay />
+<Tabs syncKey='board'>
+  <TabItem label="ESP32 (Bluepad32)">
+    <CardGrid>
+      <Card title="Control de Velocidad" icon="rocket">
+        - **LT (Default):** 0 → -255 (Reversa)
+        - **LB (Universal):** Atajo para -255
+        - **RT (Default):** 0 → 255 (Avanzar)
+        - **RB (Universal):** Atajo para 255
+        - **Select:** Cambia entre modo default (triggers) y modo axis (Eje Y Izquierdo)
+        - **Eje Y Izquierdo:** -255 (Reversa) → 0 → 255 (Avanzar)
+      </Card>
+
+      <Card title="Control de Dirección" icon="random">
+        - **Eje X Izquierdo (Default):** -255 (Giro Izquierda) → 0 → 255 (Giro Derecha)
+        - **Dpad Izquierda (Universal):** Atajo para -255
+        - **Dpad Derecha (Universal):** Atajo para 255
+        - **Start:** Cambia entre modo default (Eje X Izquierdo) y axis (Eje X Derecho)
+        - **Eje X Derecho (Default):** -255 (Giro Izquierda) → 0 → 255 (Giro Derecha)
+      </Card>
+    </CardGrid>
+  </TabItem>
+  <TabItem label="Arduino (PS2X)">
+    <CardGrid>
+      <Card title="Control de Velocidad" icon="rocket">
+        - **Eje Y Izquierdo (Default):** -255 (Reversa) → 0 → 255 (Avanzar)
+        - **Select:** Cambia entre modo default (Eje Y Izquierdo) y Eje Y Derecho
+      </Card>
+
+      <Card title="Control de Dirección" icon="random">
+        - **Eje X Derecho (Default):** -255 (Giro Izquierda) → 0 → 255 (Giro Derecha)
+        - **Start:** Cambia entre modo default (Eje X Derecho) y Eje X Izquierdo
+      </Card>
+    </CardGrid>
+  </TabItem>
+</Tabs>
+
+## Modos Especiales
+
+<Card title="Bluepad32 & PS2X - Modos Especiales">
   <Card title="Explicación" icon="magnifier">
-    El dpad funciona como un mando completo, es decir, puedes usarlo para acelerar, desacelerar y controlar la dirección.
+    Los siguientes modos especiales aplican tanto a los controladores Bluepad32 (ESP32) como a los PS2X (Arduino). Los nombres de botones se muestran para ambas plataformas cuando difieren.
 
-Tiene prioridad total y sobrescribirá cualquier instrucción del dpad, esto significa que si aceleramos y pulsamos la flecha abajo del dpad, el coche dará marcha atrás con el 100% de velocidad.
+    - **Manual Drive — A (Xbox) / Cruz (PS2):** Modo de conducción manual. Los controles se comportan de forma estándar: LT/LB controlan reversa, RT/RB controlan avance; presionar LB o RB actúa como atajo de dirección completa.
+
+    - **Tank Drive — X (Xbox) / Cuadro (PS2):** Modo de conducción tipo tanque. Usa el mismo mapeo de entradas pero aumenta la sensibilidad de giro y mantiene el comportamiento de giro vinculado al mismo eje.
+
+    - **Modo Exposición — Y (Xbox) / Triángulo (PS2):** Modo de exposición. Los controles de velocidad (triggers o ejes) controlan tanto la velocidad hacia adelante/atrás como la rotación: `255` = rotación completa a la derecha, `-255` = rotación completa a la izquierda. El giro se comporta igual que en modo tanque.
+
+    - **Desconexión del Controller (solo Bluepad32):** Mantén presionado el botón del sistema (botón Xbox) por **~2 segundos** para desconectar el controller del ESP32.
   </Card>
 </Card>
 
-## Controles básicos
-<Card
-  title="Avanzar y retroceder"
->
-  <video src="/normal_speed_example.mp4" loop autoplay />
-  <Card title="Explicación" icon="magnifier">
-    RT y RB se encargan de acelerar, RT va de 0% a 100% y así se controla la velocidad hacia delante, si se pulsa RB equivale al 100% de RT; Mismo caso que con LT y LB pero con estos es hacia atrás.
-
-    En el caso, por ejemplo, de 100% marcha atrás y 100% marcha adelante el coche se parará, 50% marcha atrás y 100% marcha adelante equivale a 50% marcha adelante.
-  </Card>
-</Card>
-<Card
-  title="Dirección"
->
-  <video src="/normal_rotation_example.mp4" loop autoplay />
-  <Card title="Explicación" icon="magnifier">
-    El stick izquierdo controla el sentido de giro, si está un 50% a la derecha, el neumático derecho reducirá su velocidad un 50% para hacer un giro a la derecha; mismo caso en sentido contrario.
-  </Card>
-</Card>
-
-## Configurando los controles
-<Card
-  title="Usando el stick izquierdo para avanzar y retroceder"
->
-  <video src="/left_axis_y_speed_example.mp4" loop autoplay />
-  <Card title="Explicación" icon="magnifier">
-    El botón select se usa para alternar entre acelerar y desacelerar, un solo click hace que uses el eje y del stick izquierdo, otro click vuelve al modo original, aunque se desconecte el mando la configuración se conserva, solo se reinicia cuando se apaga el esp32.
-  </Card>
-</Card>
-<Card
-  title="Usando el stick derecho para dirección"
->
-  <video src="/right_axis_x_rotation_example.mp4" loop autoplay />
-  <Card title="Explicación" icon="magnifier">
-    Mismo caso que con el botón select, el botón start funciona igual pero esta vez, intercambia el eje x del stick izquierdo por el mismo eje pero del stick derecho.
-  </Card>
-</Card>
+<Aside type="caution">
+- Las selecciones conmutadas (Select/Start) persisten mientras la board permanezca encendida; una desconexión del controller no las reinicia — solo un reinicio de la board las limpia.
+- Cuando múltiples entradas de velocidad opuestas están activas (por ejemplo, reversa total y avance total), se cancelan entre sí, resultando en parada; los valores parciales se combinan algebraicamente.
+</Aside>

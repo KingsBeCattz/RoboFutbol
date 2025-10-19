@@ -1,63 +1,72 @@
 ---
-title: Soporte de Puentes H
-description: Soporte para varios puentes H y como usarlos.
+title: "Soporte para Puente H"
+description: "Veamos cómo usar cualquier puente H con nosotros."
 ---
 import { LinkCard, Aside, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
-import { Accordion, AccordionItem } from 'accessible-astro-components';
 
-Nuestro código, además de soportar varios gamepads gracias a Bluepad32, también soporta varios puentes H gracias a su pinout, aquí te mostramos que puentes H soportamos y como usarlos.
+Nuestro código, además de soportar varios gamepads gracias a Bluepad32, también es compatible con distintos tipos de **puentes H (H-bridges)** gracias a su pinout.  
+Los ejemplos mostrados aquí aplican tanto para **ESP32 (Bluepad32)** como para **boards compatibles con Arduino (PS2)**.
 
 <Aside type="caution">
-Este proyecto fue construido usando el microcontrolador ESP32, si no tienes experiencia usándolo te recomendamos ver los tutoriales de introducción.
+Este proyecto fue desarrollado utilizando **microcontroladores ESP32 y boards compatibles con Arduino**.  
+Si no tienes experiencia con ellos, te recomendamos ver algunos tutoriales introductorios antes de continuar.
 </Aside>
 
 <Tabs syncKey='hbridges'>
-  <TabItem label="Basados en relé">
-    ### Puentes H basados en relé
-    Más lento, pero sencillo y útil en baja frecuencia y prototipos caseros. Un ejemplo podría ser como en la siguiente imagen:
-    <img src="/H_Bridge_Relay_Model.jpg" alt="Relay H-Bridge" loading="lazy" />
-    Este ejemplo muestra dos fuentes de alimentación (la de la izquierda es de 5v y la de la derecha puede ser de cualquier voltaje soportado por el motor), dos interruptores (IN1 e IN2), el motor y el circuito puente.
-    <LinkCard title="Véalo en Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
+  <TabItem label="Basado en Relés">
+    ### Puentes H Basados en Relés
+    Son más lentos, pero simples y útiles para prototipos caseros o de baja frecuencia.  
+    Un ejemplo podría verse como en la siguiente imagen:
+    <img src="/H_Bridge_Relay_Model.jpg" alt="Puente H con relés" loading="lazy" />
+    Este ejemplo muestra dos fuentes de poder (la izquierda de 5 V y la derecha de cualquier voltaje soportado por el motor), dos interruptores (IN1 e IN2), el motor y el circuito del puente.
+    <LinkCard title="Ver en Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
   </TabItem>
-  <TabItem label="Basados en transistor">
-    ### Puentes H basados en transistor
-    Son económicos, pero consumen más corriente de base. Un ejemplo de estos podría ser como en la siguiente imagen:
-    <img src="/H_Bridge_Transistor_Model.jpg" alt="Transistor H-Bridge" style="width: 100%;" loading="lazy" />
-    Este ejemplo muestra la circuitería del puente h, dos interruptores y un motor, igual que el ejemplo con relés, con la diferencia de que sólo se utiliza una fuente de alimentación (5v).
-    <LinkCard title="Véalo en Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
+
+  <TabItem label="Basado en Transistores">
+    ### Puentes H Basados en Transistores
+    Son económicos, aunque consumen más corriente de base.  
+    Un ejemplo de este tipo puede verse en la siguiente imagen:
+    <img src="/H_Bridge_Transistor_Model.jpg" alt="Puente H con transistores" style="width: 100%;" loading="lazy" />
+    Este ejemplo muestra el circuito del puente H, dos interruptores y un motor, similar al ejemplo con relés, con la diferencia de que aquí solo se usa una fuente de poder (5 V).
+    <LinkCard title="Ver en Tinkercad" href="https://www.tinkercad.com/things/khXa8as0Kuh-h-bridge" />
   </TabItem>
-  <TabItem label="Basados en MOSFET">
-    ### Puentes H basados en MOSFET
-    Muy eficientes, se utilizan en casi todo hoy en día. Existen MOSFET de canal N y P. 
+
+  <TabItem label="Basado en MOSFET">
+    ### Puentes H Basados en MOSFET
+    Muy eficientes y usados prácticamente en todo hoy en día.  
+    Existen MOSFETs de canal N y de canal P.
     <CardGrid>
       <LinkCard
-        title="Puente en H de alta potencia NOYITO 170W"
+        title="NOYITO 170W High-power H-bridge"
         href="https://a.co/d/647R9WZ"
-        description='Se trata de un puente en H de alta potencia que puede utilizarse para motores de hasta 170 W. Cuenta con un control PWM integrado y funciones de protección.'
+        description="Este es un puente H de alta potencia que puede utilizarse con motores de hasta 170 W. Integra control PWM y funciones de protección."
       />
       <LinkCard
-        title="Módulo controlador de motores BTS7960 43A"
+        title="BTS7960 Motor Driver Module 43A"
         href="https://a.co/d/acEVuIM"
-        description='Se trata de un puente en H de alta potencia que puede utilizarse para motores de hasta 43 A. Cuenta con un control PWM integrado y funciones de protección.'
+        description="Este es un puente H de alta potencia para motores de hasta 43 A. Integra control PWM y características de protección."
       />
     </CardGrid>
   </TabItem>
-  <TabItem label="Basados en IC">
-    ### Puentes H basados en IC
-    Se basan en chips, integran protección, lógica y, a veces, control PWM.
+
+  <TabItem label="Basado en DriverIC">
+    ### Puentes H Basados en DriverIC
+    Están integrados en un chip (*IC*), e incluyen protección, lógica y, en algunos casos, control PWM.
     <LinkCard
-      title="Tarjeta controladora de motor L298N"
+      title="L298N Motor Driver Controller Board"
       href="https://a.co/d/iUPWyC4"
-      description='Este es un puente h bastante económico generalmente usado para motores de baja potencia'
+      description="Este es un puente H bastante económico, generalmente usado para motores de baja potencia."
     />
   </TabItem>
 </Tabs>
 
-Como puedes ver, absolutamente todos estos ejemplos tienen algo en común, la presencia de IN1 e IN2 para controlar la dirección de un motor, en nuestro código hay soporte para un máximo de dos motores y 2 interfaces:
-- Interfaz clásica - Salida simple HIGH o LOW
-- Interfaz PWM - Salida PWM de 0 a 255
+Como puedes ver, todos estos ejemplos tienen algo en común: la presencia de **IN1/IN3 e IN2/IN4**, que controlan la dirección del motor.  
+En nuestro código hay soporte para un máximo de **dos motores** y **dos interfaces**:
 
-Cada modo tiene sus respectivos pines, míralos en:
+- **Interfaz clásica** — salida simple HIGH o LOW  
+- **Interfaz PWM** — salida PWM de 0 a 255
+
+Cada modo tiene sus pines respectivos, puedes verlos en:
 <LinkCard
   title="PinOut"
   href="/es/guides/pinout/"

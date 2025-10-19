@@ -2,81 +2,81 @@
 title: "Pinout"
 description: "PinOut that you can use to your advantage."
 ---
-import { LinkCard, Aside } from '@astrojs/starlight/components';
+import { LinkCard, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Aside type="caution">
-This project was built using the ESP32 microcontroller, if you don't have experience using it we recommend you to watch the intro tutorials.
+This project was built using **ESP32 and Arduino-compatible microcontrollers**.  
+If you don't have experience using them, we recommend reviewing some introductory tutorials.
 </Aside>
 
-| Pin | Motor | Input | Type |
-|---|---|---|---|
-| GPIO 25 | Motor 1 | IN1 | DIGITAL |
-| GPIO 26 | Motor 1 | IN2 | DIGITAL |
-| GPIO 27 | Motor 1 | IN1 | PWM |
-| GPIO 14 | Motor 1 | IN2 | PWM |
-| GPIO 33 | Motor 1 | ENABLE | DIGITAL |
-| GPIO 32 | Motor 1 | PWM SPEED | PWM |
-| GPIO 19 | Motor 2 | IN1 | DIGITAL |
-| GPIO 18 | Motor 2 | IN2 | DIGITAL |
-| GPIO 17 | Motor 2 | IN1 | PWM |
-| GPIO 16 | Motor 2 | IN2 | PWM |
-| GPIO 22 | Motor 2 | ENABLE | DIGITAL |
-| GPIO 23 | Motor 2 | PWM SPEED | PWM |
+<Tabs syncKey='board'>
+  <TabItem label="ESP32 (Bluepad32)">
+    | Pin | Motor | Function | Type |
+    |---|---|---|---|
+    | GPIO 27 | Motor 1 | Forward | PWM/DIGITAL |
+    | GPIO 14 | Motor 1 | Backward | PWM/DIGITAL |
+    | GPIO 32 | Motor 1 | ENABLE (optional) | PWM/DIGITAL |
+    | GPIO 17 | Motor 2 | Forward | PWM/DIGITAL |
+    | GPIO 16 | Motor 2 | Backward | PWM/DIGITAL |
+    | GPIO 23 | Motor 2 | ENABLE (optional) | PWM/DIGITAL |
 
-<Aside type="tip">
-Pins **GPIO 33** (Motor 1) and **GPIO 22** (Motor 2) act as **digital ENABLE pins**, used to activate the motor with a simple ON/OFF signal.  
-Pins **GPIO 32** and **GPIO 23** are used for **dedicated PWM speed control**, separate from IN1 and IN2.
-</Aside>
+    <Aside type="tip">
+    Pins **32** (Motor 1) and **23** (Motor 2) act as optional **PWM/digital ENABLE pins** for separated motor control.
+    </Aside>
+  </TabItem>
+  <TabItem label="Arduino (PS2X)">
+    | Pin | Motor | Function | Type |
+    |---|---|---|---|
+    | 9  | Motor 1 | Forward | PWM/DIGITAL |
+    | 6  | Motor 1 | Backward | PWM/DIGITAL |
+    | 10 | Motor 1 | ENABLE (optional) | PWM/DIGITAL |
+    | 5  | Motor 2 | Forward | PWM/DIGITAL |
+    | 3  | Motor 2 | Backward | PWM/DIGITAL |
+    | 11 | Motor 2 | ENABLE (optional) | PWM/DIGITAL |
 
-<Aside type="tip">
-If your H-bridge only requires PWM signals on IN1 and IN2, you can simply use the `ENABLE_PWM_OUT` flag.
-
-If you're also using digital outputs (`ENABLE_DIGITAL_OUT`), you can achieve smoother behavior by enabling the `HOLD_DIGITAL` flag.
-
-This flag **keeps the digital pins active** even when the speed is less than 100%, allowing the motor to maintain direction even at low speeds.  
-> This replaces the old method of physically bridging GPIO 32 to GND to avoid sudden motor shutdowns at low speeds.
-</Aside>
-
-## Flag Configuration
-
-You can control which pins are used via the following flags, which can be combined using the `|` operator at compile time:
-
-```cpp
-// Available flags
-#define ENABLE_DIGITAL_OUT (1 << 0)  // Uses IN1/IN2 as digital ON/OFF outputs
-#define ENABLE_PWM_OUT     (1 << 1)  // Uses PWM on IN1/IN2
-#define ENABLE_EN_OUT      (1 << 2)  // Uses dedicated ENABLE pins
-#define ENABLE_SPEED_OUT   (1 << 3)  // Uses dedicated PWM pins for speed control
-#define HOLD_DIGITAL       (1 << 4)  // Keeps IN1/IN2 active even if speed < 100%
-
-// Basic example: only PWM on IN1/IN2
-#define flags (ENABLE_PWM_OUT)
-
-// Full setup: PWM + ENABLE + speed control + digital retention
-#define flags (ENABLE_PWM_OUT | ENABLE_EN_OUT | ENABLE_SPEED_OUT | ENABLE_DIGITAL_OUT | HOLD_DIGITAL)
-```
-
-### What does `HOLD_DIGITAL` do?
-
-When `HOLD_DIGITAL` is active, the digital outputs (IN1 or IN2) **stay ON as long as a direction is present**, even if the speed is low.
-
-This prevents the motor from “cutting off” when direction is present but the speed is not at 100%, such as in the 10%-90% range, reducing jerks and enabling smoother motion.
-
-> ⚠️ If you don’t use `HOLD_DIGITAL`, the digital pins will automatically turn OFF unless the direction reaches 100%, which can cause unwanted stops or stutters.
+    <Aside type="tip">
+    Pins **10** (Motor 1) and **11** (Motor 2) act as optional **PWM/digital ENABLE pins** for separated motor control.
+    </Aside>
+  </TabItem>
+</Tabs>
 
 ---
 
-## Logic Table: Which Pins Activate per `flag`
+## Configuration Flags
 
-| Active Flag         | Pins Used                                     | Description |
-|---------------------|-----------------------------------------------|-------------|
-| `ENABLE_DIGITAL_OUT` | `GPIO 25`, `GPIO 26`, `GPIO 19`, `GPIO 18`   | Uses IN1 and IN2 as basic ON/OFF digital outputs |
-| `ENABLE_PWM_OUT`     | `GPIO 27`, `GPIO 14`, `GPIO 17`, `GPIO 16`   | Uses IN1 and IN2 with PWM modulation |
-| `ENABLE_EN_OUT`      | `GPIO 33`, `GPIO 22`                         | Dedicated digital ENABLE pins for each motor |
-| `ENABLE_SPEED_OUT`   | `GPIO 32`, `GPIO 23`                         | Dedicated PWM pins for speed control |
-| `HOLD_DIGITAL`       | *Depends on direction* + `ENABLE_DIGITAL_OUT` | Keeps digital pins active even if speed < 100% |
+The configuration is divided into two groups: the pins that control the **direction of the motor** and the pins that **enable the H-bridge** of each motor.  
+Only **one option per group** should be active at a time.
+
+### Motor direction pins
+
+```cpp
+// #define USE_PWM_MOTOR_PIN      // Use PWM pins for motor direction
+// #define USE_DIGITAL_MOTOR_PIN  // Use digital pins for motor direction
+```
+
+### Enable pins
+
+```cpp
+// #define USE_PWM_ENABLE_PIN     // Use PWM pins for motor enable
+// #define USE_DIGITAL_ENABLE_PIN // Use digital pins for motor enable
+```
 
 <Aside type="note">
-⚠️ The `HOLD_DIGITAL` flag **does not activate pins by itself** — it modifies the behavior of `ENABLE_DIGITAL_OUT`.  
-When active, it prevents IN1/IN2 from turning off at low speeds while a direction is still present.
+Uncomment only the option you need for each group. For example, if you want PWM motor direction and digital enable, you would uncomment:
+
+```cpp
+#define USE_PWM_MOTOR_PIN
+#define USE_DIGITAL_ENABLE_PIN
+```
 </Aside>
+
+---
+
+## Logic Table: Which Pins Activate per Configuration
+
+| Configuration           | ESP32 Pins Used                   | Arduino Pins Used    | Description                                 |
+|-------------------------|-----------------------------------|----------------------|---------------------------------------------|
+| Motor direction PWM     | GPIO 27, 14, 17, 16               | 9, 6, 5, 3           | IN1 ... IN4 controlled via PWM              |
+| Motor direction DIGITAL | GPIO 27, 14, 17, 16               | 9, 6, 5, 3           | IN1 ... IN4 controlled via digital ON/OFF   |
+| Enable PWM              | GPIO 32, 23                       | 10, 11               | Dedicated PWM pins for speed/enable control |
+| Enable DIGITAL          | GPIO 32, 23                       | 10, 11               | Dedicated digital ENABLE pins               |
