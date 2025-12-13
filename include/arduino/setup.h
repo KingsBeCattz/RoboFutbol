@@ -20,7 +20,7 @@
 
 // 10 12 11 13
 
-#ifdef USE_ENABLE_PINS
+#ifdef USE_ENABLE
 /// @brief Clock pin for PS2X controller.
 #define CLK 8
 /// @brief Attention pin for PS2X controller.

@@ -18,7 +18,7 @@
 #ifndef ARDUINO_PINES_H
 #define ARDUINO_PINES_H
 
-#ifdef USE_ENABLE_PINS
+#ifdef USE_ENABLE
 /// @brief Pin definition for left enable. (EN1)
 #define LEFT_ENABLE_PIN 11
 /// @brief Pin definition for right enable. (EN2)
