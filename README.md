@@ -1,5 +1,7 @@
 # Robo-Futbol
 
+[**EN**/[ES](./README_ES.MD)]
+
 Robo-Futbol is a project designed to simplify controlling RC cars using either a Bluetooth gamepad (via Bluepad32 on ESP32 boards) or a PS2 wireless receiver on Arduino-compatible boards.
 
 > **Compatibility:** This code is **only compatible with PlatformIO** (Visual Studio Code + PlatformIO extension). Arduino IDE is no longer supported.
@@ -20,19 +22,32 @@ Robo-Futbol is a project designed to simplify controlling RC cars using either a
 5. Wait while PlatformIO downloads the required framework packages and libraries.
 6. Select the target environment in PlatformIO (see `platformio.ini`) and upload the code to your board.
 
-> The project provides two environments you can choose from in `platformio.ini`: `esp32` and `arduino-uno`.
+### Available Environments
 
-### Example `platformio.ini`
+The project provides multiple environments in `platformio.ini`:
+
+#### ESP32 Environments
+
+- **`esp32_2_motors`** (default): Uses `.env` file configuration for 1 pair of motors (2 motors total)
+- **`esp32_4_motors`**: Uses `.env` file configuration for 2 pairs of motors (4 motors total)
+- **`esp32_6_motors`**: Uses `.env` file configuration for 3 pairs of motors (6 motors total)
+- **`esp32_preset_l298n`**: Pre-configured for L298N motor driver (no `.env` file needed)
+- **`esp32_preset_tb6612fng`**: Pre-configured for TB6612FNG motor driver (no `.env` file needed)
+
+#### Arduino Environment
+
+- **`arduino-uno`**: For Arduino Uno boards with PS2 controller
+
+### Example `platformio.ini` (simplified)
 
 ```ini
 [platformio]
-default_envs = esp32
+default_envs = esp32_2_motors
 
-[env:esp32]
+[env:esp32_2_motors]
 platform = espressif32
 board = esp32doit-devkit-v1
 framework = arduino
-
 monitor_speed = 115200
 
 platform_packages =
@@ -41,17 +56,93 @@ platform_packages =
 lib_deps =
   https://github.com/KingsBeCattz/MotorDriveUnit.git#main
 
+extra_scripts = pre:load_env_vars.py
+build_flags = -DPAIRS_OF_MOTORS=1
+
+[env:esp32_preset_l298n]
+extends = esp32_2_motors
+build_flags = 
+  -DUSE_DIGITAL_MOTOR_PIN=0
+  -DUSE_DIGITAL_ENABLE_PIN=0
+  -DUSE_ENABLE_PINS=0
+  -DPAIRS_OF_MOTORS=1
+
+[env:esp32_preset_tb6612fng]
+extends = esp32_2_motors
+build_flags = 
+  -DUSE_DIGITAL_MOTOR_PIN=1
+  -DUSE_DIGITAL_ENABLE_PIN=0
+  -DUSE_ENABLE_PINS=1
+  -DPAIRS_OF_MOTORS=1
+
+[env:esp32_4_motors]
+extends = esp32_2_motors
+build_flags = -DPAIRS_OF_MOTORS=2
+
+[env:esp32_6_motors]
+extends = esp32_2_motors
+build_flags = -DPAIRS_OF_MOTORS=3
+
 [env:arduino-uno]
 platform = atmelavr
 board = uno
 framework = arduino
-
 monitor_speed = 115200
 
 lib_deps =
   https://github.com/KingsBeCattz/MotorDriveUnit.git#main
   https://github.com/madsci1016/Arduino-PS2X.git
 ```
+
+> **Note:** Environments with `_motors` suffix (like `esp32_2_motors`, `esp32_4_motors`, `esp32_6_motors`) read configuration from a `.env` file. Preset environments (like `esp32_preset_l298n`, `esp32_preset_tb6612fng`) have hardcoded configurations and don't require a `.env` file.
+
+---
+
+## Configuration via `.env` file
+
+All firmware configuration for the `esp32_*_motors` environments is done via a `.env` file. Detailed configuration guides are available in two languages:
+
+- **[ENV_CONFIG_EN.md](./ENV_CONFIG_EN.md)**: English guide for `.env` file configuration
+- **[ENV_CONFIG_ES.md](./ENV_CONFIG_ES.md)**: Spanish guide for `.env` file configuration
+
+### Pin Behavior Configuration
+
+These variables control **how the motor driver pins are handled**.
+
+#### Digital vs PWM control
+*   `USE_DIGITAL_MOTOR_PIN=1` → Uses digital pins (`HIGH`/`LOW`) for motor power. `=0` for PWM control.
+*   `USE_DIGITAL_ENABLE_PIN=1` → `ENABLE` pins operate in digital mode. `=0` for PWM speed control.
+*   `USE_ENABLE_PINS=1` → Motor power is controlled using the `ENABLE` pins. `=0` to control power directly through direction pins.
+
+### Motor Cloning Configuration (ESP32 Only)
+
+⚠️ **Important:** The **output cloning functionality is only available on ESP32**. On AVR boards (Arduino Uno/Nano/Mega), these settings are ignored and the firmware operates only with the main motors.
+
+The following variables define **motor clones**, which replicate **exactly the same signal** as the master motor.
+*   Value **255** → **clone disabled**
+*   Any other value → The pin is an **active clone**
+
+#### First pair of cloned motors
+```env
+LEFT_MOTOR_CLONE_1_FORWARD=255
+LEFT_MOTOR_CLONE_1_BACKWARD=255
+LEFT_MOTOR_CLONE_1_ENABLE=255
+RIGHT_MOTOR_CLONE_1_FORWARD=255
+RIGHT_MOTOR_CLONE_1_BACKWARD=255
+RIGHT_MOTOR_CLONE_1_ENABLE=255
+```
+
+#### Second pair of cloned motors
+```env
+LEFT_MOTOR_CLONE_2_FORWARD=255
+LEFT_MOTOR_CLONE_2_BACKWARD=255
+LEFT_MOTOR_CLONE_2_ENABLE=255
+RIGHT_MOTOR_CLONE_2_FORWARD=255
+RIGHT_MOTOR_CLONE_2_BACKWARD=255
+RIGHT_MOTOR_CLONE_2_ENABLE=255
+```
+
+> This configuration allows scaling from **2 up to 6 motors per side** without modifying the source code. Changing the operating mode only requires editing the `.env` file and recompiling.
 
 ---
 
@@ -139,7 +230,10 @@ All firmware is integrated in `src/main.cpp`. The code is ready to upload after 
   * **Y (Triangle)** button: activates **exposition** mode.
   * **A (Circle/B)** button: activates **manual driving** mode.
 
-> Use the compile/upload controls in PlatformIO to build and flash for the `esp32` environment.
+**Choose the appropriate environment based on your setup:**
+- Use `esp32_2_motors`, `esp32_4_motors`, or `esp32_6_motors` with a `.env` file for custom configurations
+- Use `esp32_preset_l298n` for L298N motor driver without `.env` file
+- Use `esp32_preset_tb6612fng` for TB6612FNG motor driver without `.env` file
 
 ### Arduino-compatible (PS2)
 
@@ -160,39 +254,7 @@ All firmware is integrated in `src/main.cpp`. The code is ready to upload after 
 
 ---
 
-## Configuration flags (explained)
-
-The following macros appear near the top of `src/main.cpp`. Uncomment the ones you need. All are documented below as in the source.
-
-```cpp
-// -----------------------------------------------------
-// Configurate the Motor Control
-// -----------------------------------------------------
-
-// @brief If this macro is defined, the motor driver will use digital pins to control motor power. If not defined, PWM will be used.
-// #define USE_DIGITAL_MOTOR_PIN
-// @brief If this macro is defined, the motor driver will use digital pins to control h-bridge enable. If not defined, PWM will be used.
-// #define USE_DIGITAL_ENABLE_PIN
-
-// -----------------------------------------------------
-// Enable H-Bridge Enable Pins
-// -----------------------------------------------------
-
-/// @brief If this macro is defined, the motor driver will use enable pins to control motor power.
-// #define USE_ENABLE_PINS
-```
-
-### Macro explanations (individual)
-
-* `USE_DIGITAL_MOTOR_PIN` — When defined, the firmware uses **digital output pins** to drive the motor direction/power pins (IN1/IN2 / IN3/IN4). This means the code will write `HIGH`/`LOW` states to those pins. If **not defined**, the code uses **PWM output** on those pins to control motor speed (analogWrite).
-
-* `USE_DIGITAL_ENABLE_PIN` — When defined, the firmware uses **digital output pins** for the H-bridge enable pins (EN1/EN2), toggling them `HIGH`/`LOW`. If **not defined**, the enable pins are controlled with **PWM**, allowing variable motor enable behavior.
-
-* `USE_ENABLE_PINS` — When defined, the firmware **uses separate enable pins** (EN1 / EN2) for each motor (useful with H-bridges that expose enable inputs). If **not defined**, the firmware assumes the motor driver does not require separate enable pins and controls the H-bridge only via the direction/power pins.
-
-> Choose macros based on your motor driver hardware and whether you need PWM on direction vs enable pins.
-
----
-
 ## Note
 * The repository includes `src/main.cpp` with all core code integrated. Select the correct PlatformIO environment before building.
+* **For ESP32:** Choose between `.env`-based environments (`esp32_*_motors`) or preset environments (`esp32_preset_*`) based on your needs. Detailed configuration guides are available in [English](./ENV_CONFIG_EN.md) and [Spanish](./ENV_CONFIG_ES.md).
+* **For Arduino:** Use the `arduino-uno` environment. Configuration is fixed for 2 motors only.
