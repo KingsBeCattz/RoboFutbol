@@ -20,9 +20,9 @@
 
 #ifdef USE_ENABLE_PINS
 /// @brief Pin definition for left enable. (EN1)
-#define LEFT_ENABLE_PIN 25
+#define LEFT_ENABLE_PIN 32
 /// @brief Pin definition for right enable. (EN2)
-#define RIGHT_ENABLE_PIN 26
+#define RIGHT_ENABLE_PIN 23
 #endif
 
 /// @brief Pin definition for left forward motion. (IN1)

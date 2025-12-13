@@ -19,25 +19,10 @@
 
 #ifdef ESP32
 #include <Bluepad32.h>
+#include "config.h"
 #else
 #include "PS2X_lib.h"
 #endif
-
-// -----------------------------------------------------
-// Configurate the Motor Control
-// -----------------------------------------------------
-
-// @brief If this macro is defined, the motor driver will use digital pins to control motor power. If not defined, PWM will be used.
-// #define USE_DIGITAL_MOTOR_PIN
-// @brief If this macro is defined, the motor driver will use digital pins to control h-bridge enable. If not defined, PWM will be used.
-// #define USE_DIGITAL_ENABLE_PIN
-
-// -----------------------------------------------------
-// Enable H-Bridge Enable Pins
-// -----------------------------------------------------
-
-/// @brief If this macro is defined, the motor driver will use enable pins to control motor power.
-// #define USE_ENABLE_PINS
 
 // -----------------------------------------------------
 // Motor pin definitions
@@ -122,38 +107,18 @@ void setup()
   motorDriver.begin();
   motorDriver.setDeadzone(70);
 
-  motorDriver.getLeftMotor().setDirectionPins(LEFT_FORWARD_PIN, LEFT_BACKWARD_PIN,
-#ifdef USE_DIGITAL_MOTOR_PIN
-                                              true
-#else
-                                              false
-#endif
-  );
+  motorDriver.getLeftMotor().setDirectionPins(LEFT_FORWARD_PIN, LEFT_BACKWARD_PIN, USE_DIGITAL_MOTOR);
 
-  motorDriver.getRightMotor().setDirectionPins(RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN,
-#ifdef USE_DIGITAL_MOTOR_PIN
-                                               true
-#else
+  motorDriver.getRightMotor().setDirectionPins(RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, USE_DIGITAL_ENABLE);
 
-                                               false
+#ifdef USE_ENABLE
+  motorDriver.getLeftMotor().setEnablePin(LEFT_ENABLE_PIN, USE_DIGITAL_ENABLE);
+  motorDriver.getRightMotor().setEnablePin(RIGHT_ENABLE_PIN, USE_DIGITAL_ENABLE);
 #endif
-  );
 
-#ifdef USE_ENABLE_PINS
-  motorDriver.getLeftMotor().setEnablePin(LEFT_ENABLE_PIN,
-#ifdef USE_DIGITAL_ENABLE_PIN
-                                          true
-#else
-                                          false
-#endif
-  );
-  motorDriver.getRightMotor().setEnablePin(RIGHT_ENABLE_PIN,
-#ifdef USE_DIGITAL_ENABLE_PIN
-                                           true
-#else
-                                           false
-#endif
-  );
+#ifdef ESP32
+#include "esp32/pin_clone.h"
+  init_clone();
 #endif
 
 #ifdef ESP32

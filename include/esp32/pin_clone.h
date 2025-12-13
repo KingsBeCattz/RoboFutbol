@@ -15,13 +15,15 @@
  * along with Robo-Futbol.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_UTIL_FUNC_H
-#define ESP32_UTIL_FUNC_H
+#ifndef ESP32_PIN_CLONE_H
+#define ESP32_PIN_CLONE_H
 
-/// @brief Computes the ceiling of a float as an unsigned integer.
-unsigned int unsignedCeil(float x);
+/// @brief Clones a GPIO PIN
+static inline void clone_gpio(unsigned char master, unsigned char clone);
 
-/// @brief Button Event Listener
-void listenButtonState(bool buttonState, bool &previousState,
-                       void (*onPressed)(), void (*onReleased)());
+/// @brief Clones a motors pins
+static inline void clone_motor_pins(unsigned char FWD[2], unsigned char BWD[2], unsigned char EN[2]);
+
+/// @brief Clones all pins defined for cloned motors on .env
+void init_clone();
 #endif
