@@ -109,7 +109,7 @@ void setup()
 
   motorDriver.getLeftMotor().setDirectionPins(LEFT_FORWARD_PIN, LEFT_BACKWARD_PIN, USE_DIGITAL_MOTOR);
 
-  motorDriver.getRightMotor().setDirectionPins(RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, USE_DIGITAL_ENABLE);
+  motorDriver.getRightMotor().setDirectionPins(RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, USE_DIGITAL_MOTOR);
 
 #ifdef USE_ENABLE
   motorDriver.getLeftMotor().setEnablePin(LEFT_ENABLE_PIN, USE_DIGITAL_ENABLE);
