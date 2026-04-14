@@ -15,11 +15,11 @@ enum Button : uint16_t
   Y = 1 << 3,
 
   // D-Pad
-  DPAD_MASK = Up | Down | Left | Right,
   Up = 1 << 4,
   Down = 1 << 5,
   Left = 1 << 6,
   Right = 1 << 7,
+  DPAD_MASK = 1 << 4 | 1 << 5 | 1 << 6 | 1 << 7,
 
   // Bumpers
   LB = 1 << 8,
