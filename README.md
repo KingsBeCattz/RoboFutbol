@@ -243,8 +243,8 @@ The default mode on startup depends on the platform:
 * Button mappings:
 
   * **D-Pad** → select input mode (see table above)
-  * **X (Cross/A)** → activates **tank drive** mode
-  * **Y (Triangle)** → activates **exposition** mode
+  * **X (SQUARE/Y)** → activates **tank drive** mode
+  * **Y (TRIANGLE/X)** → activates **exposition** mode
 
 Choose the environment that matches your board and motor driver: `esp32-l298n`, `esp32-tb6612fng`, `esp32-bts7960`, or `esp32-bts7960-dual`.
 

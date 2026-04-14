@@ -243,8 +243,8 @@ El modo por defecto al encender depende de la plataforma:
 * Mapeo de botones:
 
   * **D-Pad** → selecciona el modo de input (ver tabla arriba)
-  * **X (Cruz/A)** → activa el modo **tank drive**
-  * **Y (Triángulo)** → activa el modo **exposición**
+  * **X (CUADRADO/Y)** → activa el modo **tank drive**
+  * **Y (TRIÁNGULO/X)** → activa el modo **exposición**
 
 Elige el entorno que corresponda a tu placa y driver de motores: `esp32-l298n`, `esp32-tb6612fng`, `esp32-bts7960`, o `esp32-bts7960-dual`.
 
