@@ -170,6 +170,14 @@ Pin definitions are located in `esp32_pinout.hpp` and `arduino_pinout.hpp`. The 
 | Right Backward — Clone (LPWM) | 19 |
 | Right Enable — Clone (R_EN / L_EN) | 21 |
 
+#### Speed Limit (all ESP32 environments)
+
+| Function | Pin |
+|---|---|
+| Speed Limit (SPEED_LIMIT_PIN) | 34 |
+
+> Pin 34 is input-only on the ESP32, making it ideal for a passive pullup read. See [Speed Limit](#speed-limit) for behavior details.
+
 ---
 
 ### Arduino Uno
@@ -178,7 +186,7 @@ PS2 receiver pins are fixed regardless of driver:
 
 | Function | Pin |
 |---|---|
-| DAT | 13 |
+| DAT | 2 |
 | CMD | 12 |
 | ATT | 7 |
 | CLK | 8 |
@@ -215,6 +223,14 @@ PS2 receiver pins are fixed regardless of driver:
 | Right Backward (LPWM) | 3 |
 | Right Enable (R_EN / L_EN) | 10 |
 
+#### Speed Limit (all Arduino environments)
+
+| Function | Pin |
+|---|---|
+| Speed Limit (SPEED_LIMIT_PIN) | A0 |
+
+> See [Speed Limit](#speed-limit) for behavior details.
+
 ---
 
 ## Usage
@@ -237,12 +253,24 @@ The default mode on startup depends on the platform:
 - **ESP32:** `↑ Up` (Trigger + Left X)
 - **Arduino:** `→ Right` (Dual Stick Right)
 
+### Speed Limit
+
+By default, speed is soft-limited to 50% unless the **A button** (ESP32) or **Cross button** (Arduino) is held — holding it allows full 100% speed.
+
+This behavior can be **permanently disabled at boot**: if `SPEED_LIMIT_PIN` is connected to GND when the board starts up, the speed cap is removed entirely and the button has no effect for the rest of the session. Disconnecting the pin after boot has no effect; the state is read only once at startup.
+
+| Condition | Behavior |
+|---|---|
+| Pin floating / HIGH at boot | Soft limit active — hold A/Cross for 100% |
+| Pin pulled to GND at boot | No limit — full speed always |
+
 ### ESP32 (Bluepad32)
 
 * Main code: `src/main.cpp`.
 * Button mappings:
 
   * **D-Pad** → select input mode (see table above)
+  * **A** → hold for full speed (when speed limit is active)
   * **X (SQUARE/Y)** → activates **tank drive** mode
   * **Y (TRIANGLE/X)** → activates **exposition** mode
 
@@ -254,6 +282,7 @@ Choose the environment that matches your board and motor driver: `esp32-l298n`, 
 * Button mappings:
 
   * **D-Pad** → select input mode (see table above)
+  * **Cross** → hold for full speed (when speed limit is active)
   * **SQUARE** → tank drive
   * **TRIANGLE** → exposition mode
 
@@ -267,3 +296,4 @@ Choose the environment that matches your motor driver: `arduino-l298n`, `arduino
 * Motor driver build flags (pin modes, HBRIDGE ID) are defined in `config.ini` and loaded automatically by `platformio.ini`.
 * Pin assignments are defined in `esp32_pinout.hpp` and `arduino_pinout.hpp` and selected at compile time via the `HBRIDGE` macro.
 * **BTS7960 clone modules** use a different pin mapping than standard boards. Always use `esp32-bts7960-dual` for these. Running `esp32-bts7960` firmware on a dual/clone circuit will leave the clone motor driver uninitialized and inactive. The reverse — running `esp32-bts7960-dual` firmware on a standard BTS7960 circuit — is harmless, as the extra pins simply go unused.
+* **Speed limit pin** (`SPEED_LIMIT_PIN`) is read only once at startup. Connecting or disconnecting it after boot has no effect until the next reset.

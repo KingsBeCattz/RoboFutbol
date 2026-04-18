@@ -2,11 +2,11 @@
 
 [[EN](./README.MD)/**ES**]
 
-Robo-Futbol es un proyecto diseñado para simplificar el control de carros RC usando un gamepad Bluetooth (via Bluepad32 en placas ESP32) o un receptor inalámbrico PS2 en placas compatibles con Arduino.
+Robo-Futbol es un proyecto diseñado para simplificar el control de carros RC usando ya sea un gamepad Bluetooth (via Bluepad32 en placas ESP32) o un receptor inalámbrico PS2 en placas compatibles con Arduino.
 
-> **Compatibilidad:** Este código es **solo compatible con PlatformIO** (Visual Studio Code + extensión PlatformIO). Arduino IDE ya no es compatible.
+> **Compatibilidad:** Este código es **únicamente compatible con PlatformIO** (Visual Studio Code + extensión PlatformIO). Arduino IDE ya no está soportado.
 
-## Controladores compatibles
+## Controladores soportados
 
 * Gamepads Bluetooth via Bluepad32 (ESP32)
 * Control inalámbrico PS2 (placas compatibles con Arduino)
@@ -17,31 +17,31 @@ Robo-Futbol es un proyecto diseñado para simplificar el control de carros RC us
 
 1. Descarga el repositorio como `.zip` (o clónalo).
 2. Instala Visual Studio Code.
-3. Instala PlatformIO (y las extensiones de C/C++ recomendadas) en VS Code.
+3. Instala PlatformIO (y las extensiones recomendadas de C/C++) en VS Code.
 4. Abre el repositorio en VS Code con PlatformIO activo.
 5. Espera mientras PlatformIO descarga los paquetes de framework y librerías necesarios.
 6. Selecciona el entorno objetivo en PlatformIO (ver `platformio.ini`) y sube el código a tu placa.
 
 ### Entornos disponibles
 
-El proyecto ofrece múltiples entornos divididos entre las plataformas ESP32 y Arduino. El driver de motores se selecciona mediante el nombre del entorno, y su configuración se carga desde `config.ini`.
+El proyecto provee múltiples entornos divididos entre las plataformas ESP32 y Arduino. El driver de motores se selecciona según el nombre del entorno, y su configuración se carga desde `config.ini`.
 
 #### Entornos ESP32
 
-- **`esp32-l298n`**: ESP32 con driver de motores L298N
-- **`esp32-tb6612fng`**: ESP32 con driver de motores TB6612FNG
-- **`esp32-bts7960`**: ESP32 con driver de motores BTS7960
-- **`esp32-bts7960-dual`**: ESP32 con dos drivers de motores BTS7960
+- **`esp32-l298n`**: ESP32 con driver L298N
+- **`esp32-tb6612fng`**: ESP32 con driver TB6612FNG
+- **`esp32-bts7960`**: ESP32 con driver BTS7960
+- **`esp32-bts7960-dual`**: ESP32 con dos drivers BTS7960
 
 #### Entornos Arduino
 
-- **`arduino-l298n`**: Arduino Uno con driver de motores L298N
-- **`arduino-tb6612fng`**: Arduino Uno con driver de motores TB6612FNG
-- **`arduino-bts7960`**: Arduino Uno con driver de motores BTS7960
+- **`arduino-l298n`**: Arduino Uno con driver L298N
+- **`arduino-tb6612fng`**: Arduino Uno con driver TB6612FNG
+- **`arduino-bts7960`**: Arduino Uno con driver BTS7960
 
 ### Estructura del proyecto (`platformio.ini` + `config.ini`)
 
-La configuración está dividida en dos archivos. `platformio.ini` define la plataforma, la placa y las dependencias base, mientras que `config.ini` contiene los flags de compilación específicos de cada driver de motores:
+La configuración está dividida en dos archivos. `platformio.ini` define la plataforma, la placa y las dependencias base, mientras que `config.ini` contiene los build flags específicos de cada driver de motores:
 
 ```ini
 ; platformio.ini (simplificado)
@@ -115,7 +115,7 @@ build_flags =
 
 Las definiciones de pines se encuentran en `esp32_pinout.hpp` y `arduino_pinout.hpp`. El conjunto correcto de pines se selecciona en tiempo de compilación según el macro `HBRIDGE` definido por el entorno elegido.
 
-**Importante:** Los pines usados para control de velocidad (pines enable/PWM) deben ser capaces de generar PWM en tu placa.
+**Importante:** Los pines usados para control de velocidad (pines enable/PWM) deben ser capaces de PWM en tu placa.
 
 ### ESP32
 
@@ -123,52 +123,60 @@ Las definiciones de pines se encuentran en `esp32_pinout.hpp` y `arduino_pinout.
 
 | Función | Pin |
 |---|---|
-| Avance izquierdo (IN1) | 27 |
-| Retroceso izquierdo (IN2) | 14 |
-| Avance derecho (IN3) | 25 |
-| Retroceso derecho (IN4) | 26 |
+| Izquierda Adelante (IN1) | 27 |
+| Izquierda Atrás (IN2) | 14 |
+| Derecha Adelante (IN3) | 25 |
+| Derecha Atrás (IN4) | 26 |
 
 #### TB6612FNG
 
 | Función | Pin |
 |---|---|
-| Enable izquierdo (PWMA) | 21 |
-| Avance izquierdo (AIN1) | 18 |
-| Retroceso izquierdo (AIN2) | 19 |
+| Enable Izquierda (PWMA) | 21 |
+| Izquierda Adelante (AIN1) | 18 |
+| Izquierda Atrás (AIN2) | 19 |
 | Standby (STBY) | 5 |
-| Avance derecho (BIN1) | 17 |
-| Retroceso derecho (BIN2) | 16 |
-| Enable derecho (PWMB) | 4 |
+| Derecha Adelante (BIN1) | 17 |
+| Derecha Atrás (BIN2) | 16 |
+| Enable Derecha (PWMB) | 4 |
 
 #### BTS7960
 
 | Función | Pin |
 |---|---|
-| Enable izquierdo (R_EN / L_EN) | 26 |
-| Avance izquierdo (RPWM) | 14 |
-| Retroceso izquierdo (LPWM) | 27 |
-| Avance derecho (RPWM) | 5 |
-| Retroceso derecho (LPWM) | 17 |
-| Enable derecho (R_EN / L_EN) | 16 |
+| Enable Izquierda (R_EN / L_EN) | 26 |
+| Izquierda Adelante (RPWM) | 14 |
+| Izquierda Atrás (LPWM) | 27 |
+| Derecha Adelante (RPWM) | 5 |
+| Derecha Atrás (LPWM) | 17 |
+| Enable Derecha (R_EN / L_EN) | 16 |
 
 #### BTS7960 — Dual / Clon ⭐
-> Usa el entorno **`esp32-bts7960-dual`** para esta variante. Los módulos clon exponen pines adicionales además del pinout estándar del BTS7960.
+> Usa el entorno **`esp32-bts7960-dual`** para esta variante. Los módulos clon exponen pines adicionales junto al pinout estándar del BTS7960; usar el entorno incorrecto resultará en un comportamiento incorrecto de los motores.
 
 | Función | Pin |
 |---|---|
-| Enable izquierdo (R_EN / L_EN) | 26 |
-| Avance izquierdo (RPWM) | 14 |
-| Retroceso izquierdo (LPWM) | 27 |
-| Avance derecho (RPWM) | 5 |
-| Retroceso derecho (LPWM) | 17 |
-| Enable derecho (R_EN / L_EN) | 16 |
+| Enable Izquierda (R_EN / L_EN) | 26 |
+| Izquierda Adelante (RPWM) | 14 |
+| Izquierda Atrás (LPWM) | 27 |
+| Derecha Adelante (RPWM) | 5 |
+| Derecha Atrás (LPWM) | 17 |
+| Enable Derecha (R_EN / L_EN) | 16 |
 | -- | -- |
-| Enable izquierdo — Clon (R_EN / L_EN) | 32 |
-| Avance izquierdo — Clon (RPWM) | 25 |
-| Retroceso izquierdo — Clon (LPWM) | 33 |
-| Avance derecho — Clon (RPWM) | 18 |
-| Retroceso derecho — Clon (LPWM) | 19 |
-| Enable derecho — Clon (R_EN / L_EN) | 21 |
+| Enable Izquierda — Clon (R_EN / L_EN) | 32 |
+| Izquierda Adelante — Clon (RPWM) | 25 |
+| Izquierda Atrás — Clon (LPWM) | 33 |
+| Derecha Adelante — Clon (RPWM) | 18 |
+| Derecha Atrás — Clon (LPWM) | 19 |
+| Enable Derecha — Clon (R_EN / L_EN) | 21 |
+
+#### Límite de velocidad (todos los entornos ESP32)
+
+| Función | Pin |
+|---|---|
+| Límite de velocidad (SPEED_LIMIT_PIN) | 34 |
+
+> El pin 34 es input-only en el ESP32, lo que lo hace ideal para una lectura pasiva con pullup. Ver [Límite de velocidad](#límite-de-velocidad) para más detalles.
 
 ---
 
@@ -178,7 +186,7 @@ Los pines del receptor PS2 son fijos independientemente del driver:
 
 | Función | Pin |
 |---|---|
-| DAT | 13 |
+| DAT | 2 |
 | CMD | 12 |
 | ATT | 7 |
 | CLK | 8 |
@@ -187,83 +195,105 @@ Los pines del receptor PS2 son fijos independientemente del driver:
 
 | Función | Pin |
 |---|---|
-| Avance izquierdo (IN1) | 9 |
-| Retroceso izquierdo (IN2) | 6 |
-| Avance derecho (IN3) | 5 |
-| Retroceso derecho (IN4) | 3 |
+| Izquierda Adelante (IN1) | 9 |
+| Izquierda Atrás (IN2) | 6 |
+| Derecha Adelante (IN3) | 5 |
+| Derecha Atrás (IN4) | 3 |
 
 #### TB6612FNG
 
 | Función | Pin |
 |---|---|
-| Enable izquierdo (PWMA) | 11 |
-| Avance izquierdo (AIN1) | 9 |
-| Retroceso izquierdo (AIN2) | 6 |
+| Enable Izquierda (PWMA) | 11 |
+| Izquierda Adelante (AIN1) | 9 |
+| Izquierda Atrás (AIN2) | 6 |
 | Standby (STBY) | 4 |
-| Avance derecho (BIN1) | 5 |
-| Retroceso derecho (BIN2) | 3 |
-| Enable derecho (PWMB) | 10 |
+| Derecha Adelante (BIN1) | 5 |
+| Derecha Atrás (BIN2) | 3 |
+| Enable Derecha (PWMB) | 10 |
 
 #### BTS7960
 
 | Función | Pin |
 |---|---|
-| Enable izquierdo (R_EN / L_EN) | 11 |
-| Avance izquierdo (RPWM) | 9 |
-| Retroceso izquierdo (LPWM) | 6 |
-| Avance derecho (RPWM) | 5 |
-| Retroceso derecho (LPWM) | 3 |
-| Enable derecho (R_EN / L_EN) | 10 |
+| Enable Izquierda (R_EN / L_EN) | 11 |
+| Izquierda Adelante (RPWM) | 9 |
+| Izquierda Atrás (LPWM) | 6 |
+| Derecha Adelante (RPWM) | 5 |
+| Derecha Atrás (LPWM) | 3 |
+| Enable Derecha (R_EN / L_EN) | 10 |
+
+#### Límite de velocidad (todos los entornos Arduino)
+
+| Función | Pin |
+|---|---|
+| Límite de velocidad (SPEED_LIMIT_PIN) | A0 |
+
+> Ver [Límite de velocidad](#límite-de-velocidad) para más detalles.
 
 ---
 
 ## Uso
 
-Todo el firmware está integrado en `src/main.cpp`. El código está listo para subir después de seleccionar el entorno de PlatformIO correcto.
+Todo el firmware está integrado en `src/main.cpp`. El código está listo para subir después de seleccionar el entorno correcto de PlatformIO.
 
-### Modos de input
+### Modos de entrada
 
-Ambas plataformas comparten el mismo sistema de modos de input. El **D-Pad** selecciona el modo activo en tiempo de ejecución:
+Ambas plataformas comparten el mismo sistema de modos de entrada. El **D-Pad** selecciona el modo activo en tiempo de ejecución:
 
 | D-Pad | Modo | Fuente de potencia | Fuente de dirección |
 |---|---|---|---|
-| ↑ Arriba | Trigger + Stick izquierdo X | Triggers / Bumpers | Stick izquierdo X |
-| ↓ Abajo | Trigger + Stick derecho X | Triggers / Bumpers (invertido) | Stick derecho X |
-| → Derecha | Doble Stick Derecho | Stick izquierdo Y | Stick derecho X |
-| ← Izquierda | Doble Stick Izquierdo | Stick derecho Y | Stick izquierdo X |
+| ↑ Arriba | Gatillo + X Izquierdo | Gatillos / Bumpers | Stick izquierdo X |
+| ↓ Abajo | Gatillo + X Derecho | Gatillos / Bumpers (invertido) | Stick derecho X |
+| → Derecha | Dual Stick Derecho | Stick izquierdo Y | Stick derecho X |
+| ← Izquierda | Dual Stick Izquierdo | Stick derecho Y | Stick izquierdo X |
 
-El modo por defecto al encender depende de la plataforma:
+El modo por defecto al arranque depende de la plataforma:
 
-- **ESP32:** `↑ Arriba` (Trigger + Stick izquierdo X)
-- **Arduino:** `→ Derecha` (Doble Stick Derecho)
+- **ESP32:** `↑ Arriba` (Gatillo + X Izquierdo)
+- **Arduino:** `→ Derecha` (Dual Stick Derecho)
+
+### Límite de velocidad
+
+Por defecto, la velocidad está limitada al 50% a menos que se mantenga presionado el **botón A** (ESP32) o **Cruz** (Arduino) — mantenerlo presionado permite el 100% de velocidad.
+
+Este comportamiento puede **desactivarse permanentemente al arranque**: si `SPEED_LIMIT_PIN` está conectado a GND cuando la placa enciende, el límite de velocidad se elimina completamente y el botón no tiene efecto durante el resto de la sesión. Desconectar el pin después del arranque no tiene efecto; el estado se lee únicamente una vez al inicio.
+
+| Condición | Comportamiento |
+|---|---|
+| Pin flotante / HIGH al arranque | Límite activo — mantén A/Cruz para 100% |
+| Pin a GND al arranque | Sin límite — velocidad completa siempre |
 
 ### ESP32 (Bluepad32)
 
 * Código principal: `src/main.cpp`.
 * Mapeo de botones:
 
-  * **D-Pad** → selecciona el modo de input (ver tabla arriba)
-  * **X (CUADRADO/Y)** → activa el modo **tank drive**
-  * **Y (TRIÁNGULO/X)** → activa el modo **exposición**
+  * **D-Pad** → seleccionar modo de entrada (ver tabla arriba)
+  * **A** → mantener para velocidad completa (cuando el límite está activo)
+  * **X (SQUARE/Y)** → activa el modo **tank drive**
+  * **Y (TRIANGLE/X)** → activa el modo **exposición**
 
-Elige el entorno que corresponda a tu placa y driver de motores: `esp32-l298n`, `esp32-tb6612fng`, `esp32-bts7960`, o `esp32-bts7960-dual`.
+Elige el entorno que corresponda a tu placa y driver: `esp32-l298n`, `esp32-tb6612fng`, `esp32-bts7960`, o `esp32-bts7960-dual`.
 
 ### Arduino Uno (PS2)
 
 * Código principal: `src/main.cpp`.
 * Mapeo de botones:
 
-  * **D-Pad** → selecciona el modo de input (ver tabla arriba)
+  * **D-Pad** → seleccionar modo de entrada (ver tabla arriba)
+  * **Cruz** → mantener para velocidad completa (cuando el límite está activo)
   * **CUADRADO** → tank drive
   * **TRIÁNGULO** → modo exposición
 
-Elige el entorno que corresponda a tu driver de motores: `arduino-l298n`, `arduino-tb6612fng`, o `arduino-bts7960`.
+Elige el entorno que corresponda a tu driver: `arduino-l298n`, `arduino-tb6612fng`, o `arduino-bts7960`.
 
 ---
 
 ## Notas
 
-* Selecciona el entorno de PlatformIO correcto antes de compilar. El entorno determina tanto la plataforma objetivo como la configuración del driver de motores.
-* Los flags de compilación del driver de motores (modos de pines, ID de HBRIDGE) están definidos en `config.ini` y son cargados automáticamente por `platformio.ini`.
-* Las asignaciones de pines están definidas en `esp32_pinout.hpp` y `arduino_pinout.hpp`, y se seleccionan en tiempo de compilación mediante el macro `HBRIDGE`.
-* **Los módulos clon del BTS7960** exponen pines adicionales además del pinout estándar. Usar el firmware `esp32-bts7960` en un circuito diseñado para el clon dejará el segundo driver sin inicializar e inactivo. Lo inverso — usar el firmware `esp32-bts7960-dual` en un circuito estándar de BTS7960 — no causa ningún problema, ya que los pines extra simplemente quedan sin usar.
+* Selecciona el entorno correcto de PlatformIO antes de compilar. El entorno determina tanto la plataforma objetivo como la configuración del driver de motores.
+* Los build flags del driver (modos de pines, ID de HBRIDGE) están definidos en `config.ini` y son cargados automáticamente por `platformio.ini`.
+* Las asignaciones de pines están definidas en `esp32_pinout.hpp` y `arduino_pinout.hpp`, y se seleccionan en tiempo de compilación via el macro `HBRIDGE`.
+* **Los módulos clon de BTS7960** usan un mapeo de pines diferente al de las placas estándar. Siempre usa `esp32-bts7960-dual` para estos. Subir el firmware de `esp32-bts7960` a un circuito dual/clon dejará el driver clon sin inicializar e inactivo. Lo inverso — subir `esp32-bts7960-dual` a un circuito BTS7960 estándar — es inofensivo, ya que los pines extra simplemente no se usan.
+* **El pin de límite de velocidad** (`SPEED_LIMIT_PIN`) se lee únicamente una vez al arranque. Conectarlo o desconectarlo después del inicio no tiene efecto hasta el próximo reset.
