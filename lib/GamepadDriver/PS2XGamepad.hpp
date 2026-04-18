@@ -38,6 +38,17 @@ public:
     _initialized = (error == 0);
     return _initialized;
   }
+
+  void reset()
+  {
+    _state.buttons.reset();
+    _state.leftStick.update(0.0f, 0.0f);
+    _state.rightStick.update(0.0f, 0.0f);
+    _state.leftTrigger = 0;
+    _state.rightTrigger = 0;
+    _state.connected = false;
+  }
+
   void update() override
   {
     if (!_initialized)
@@ -79,15 +90,6 @@ private:
   bool _initialized = false;
   GamepadState _state;
 
-  void reset()
-  {
-    _state.buttons.reset();
-    _state.leftStick.update(0.0f, 0.0f);
-    _state.rightStick.update(0.0f, 0.0f);
-    _state.leftTrigger = 0;
-    _state.rightTrigger = 0;
-    _state.connected = false;
-  }
   uint16_t _mapButtons()
   {
     uint16_t result = 0;
