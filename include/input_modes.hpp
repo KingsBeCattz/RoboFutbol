@@ -10,6 +10,7 @@ extern PS2Gamepad gamepad;
 
 #include <MotorDriveUnit.h>
 
+extern bool half_power;
 extern MotorDriveUnit motor_driver;
 
 #if defined(DUAL) && defined(ESP32)
@@ -30,10 +31,12 @@ SourceFn raw_power_fn = nullptr;
 
 inline SignedPWM power_wrapper()
 {
-  SignedPWM raw_power = raw_power_fn ? raw_power_fn() : 0;
-  if (gamepad.held(Button::A))
-    return raw_power;
-  return raw_power / 2;
+  SignedPWM power = raw_power_fn ? raw_power_fn() : 0;
+
+  if (half_power && !gamepad.held(Button::A))
+    power /= 2;
+
+  return power;
 }
 
 inline SignedPWM

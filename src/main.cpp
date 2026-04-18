@@ -16,6 +16,8 @@ Bluepad32Gamepad gamepad;
 PS2Gamepad gamepad;
 #endif
 
+bool half_power = false;
+
 #include <MotorDriveUnit.h>
 MotorDriveUnit motor_driver;
 #if defined(DUAL) && defined(ESP32)

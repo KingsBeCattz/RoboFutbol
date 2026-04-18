@@ -4,6 +4,7 @@
 #include <types.h>
 
 constexpr Pin LED_STATUS_PIN = 2;
+constexpr Pin SPEED_LIMIT_PIN = 34;
 
 #if HBRIDGE == L298N
 constexpr bool USE_DIGITAL_DIRECTIONS = false;
