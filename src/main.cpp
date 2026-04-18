@@ -39,6 +39,12 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(LED_STATUS_PIN, OUTPUT);
+  pinMode(SPEED_LIMIT_PIN, INPUT_PULLUP);
+  if (digitalRead(SPEED_LIMIT_PIN) == LOW)
+  {
+    half_power = true;
+    Serial.println("Half power mode activated due to SPEED_LIMIT_PIN state.");
+  }
   gamepad.begin();
   UnsignedPWM deadzone = 70;
 
