@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include <types.h>
+#include <half_power.hpp>
+
+// #define USE_HALF_POWER
 
 #ifdef ESP32
 #include <esp32_pinout.hpp>
@@ -39,16 +42,16 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(LED_STATUS_PIN, OUTPUT);
-  pinMode(SPEED_LIMIT_PIN, INPUT_PULLUP);
-  if (digitalRead(SPEED_LIMIT_PIN) == LOW)
-  {
-    half_power = true;
-    Serial.println("Half power mode activated due to SPEED_LIMIT_PIN state.");
-  }
+
+#ifdef USE_HALF_POWER
+  setHalfPower();
+#endif
+
+  digitalWrite(LED_STATUS_PIN, HIGH);
   gamepad.begin();
   UnsignedPWM deadzone = 70;
-
   configure_drivers(deadzone);
+  digitalWrite(LED_STATUS_PIN, LOW);
 }
 
 void loop()
