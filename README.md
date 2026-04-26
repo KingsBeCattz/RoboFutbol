@@ -146,26 +146,26 @@ Pin definitions are located in `esp32_pinout.hpp`, `esp32_clones.hpp`, and `ardu
 
 | Function | Pin |
 |---|---|
-| Left Enable (PWMA) | 21 |
-| Left Forward (AIN1) | 18 |
-| Left Backward (AIN2) | 19 |
+| Left Enable (PWMA) | 4 |
+| Left Forward (AIN1) | 16 |
+| Left Backward (AIN2) | 17 |
 | Standby (STBY) | 5 |
-| Right Forward (BIN1) | 17 |
-| Right Backward (BIN2) | 16 |
-| Right Enable (PWMB) | 4 |
+| Right Forward (BIN1) | 19 |
+| Right Backward (BIN2) | 18 |
+| Right Enable (PWMB) | 21 |
 
 #### TB6612FNG — Dual / Clone ⭐
 > Use environment **`esp32-tb6612fng-dual`** for this variant. Clone modules expose additional pins alongside the standard TB6612FNG pinout; using the wrong environment will result in the clone driver being left uninitialized and inactive.
 
 | Function | Pin |
 |---|---|
-| Left Enable (PWMA) | 21 |
-| Left Forward (AIN1) | 18 |
-| Left Backward (AIN2) | 19 |
+| Left Enable (PWMA) | 4 |
+| Left Forward (AIN1) | 16 |
+| Left Backward (AIN2) | 17 |
 | Standby (STBY) | 5 |
-| Right Forward (BIN1) | 17 |
-| Right Backward (BIN2) | 16 |
-| Right Enable (PWMB) | 4 |
+| Right Forward (BIN1) | 19 |
+| Right Backward (BIN2) | 18 |
+| Right Enable (PWMB) | 21 |
 | -- | -- |
 | Left Enable — Clone (PWMA) | 32 |
 | Left Forward — Clone (AIN1) | 25 |

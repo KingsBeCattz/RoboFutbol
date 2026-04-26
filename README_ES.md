@@ -146,26 +146,26 @@ Las definiciones de pines se encuentran en `esp32_pinout.hpp`, `esp32_clones.hpp
 
 | Función | Pin |
 |---|---|
-| Habilitación Izquierda (PWMA) | 21 |
-| Izquierda Adelante (AIN1) | 18 |
-| Izquierda Atrás (AIN2) | 19 |
+| Habilitación Izquierda (PWMA) | 4 |
+| Izquierda Adelante (AIN1) | 16 |
+| Izquierda Atrás (AIN2) | 17 |
 | Standby (STBY) | 5 |
-| Derecha Adelante (BIN1) | 17 |
-| Derecha Atrás (BIN2) | 16 |
-| Habilitación Derecha (PWMB) | 4 |
+| Derecha Adelante (BIN1) | 19 |
+| Derecha Atrás (BIN2) | 18 |
+| Habilitación Derecha (PWMB) | 21 |
 
 #### TB6612FNG — Dual / Clon ⭐
 > Usa el entorno **`esp32-tb6612fng-dual`** para esta variante. Los módulos clon exponen pines adicionales junto al pinout estándar del TB6612FNG; usar el entorno incorrecto dejará el driver clon sin inicializar e inactivo.
 
 | Función | Pin |
 |---|---|
-| Habilitación Izquierda (PWMA) | 21 |
-| Izquierda Adelante (AIN1) | 18 |
-| Izquierda Atrás (AIN2) | 19 |
+| Habilitación Izquierda (PWMA) | 4 |
+| Izquierda Adelante (AIN1) | 16 |
+| Izquierda Atrás (AIN2) | 17 |
 | Standby (STBY) | 5 |
-| Derecha Adelante (BIN1) | 17 |
-| Derecha Atrás (BIN2) | 16 |
-| Habilitación Derecha (PWMB) | 4 |
+| Derecha Adelante (BIN1) | 19 |
+| Derecha Atrás (BIN2) | 18 |
+| Habilitación Derecha (PWMB) | 21 |
 | -- | -- |
 | Habilitación Izquierda — Clon (PWMA) | 32 |
 | Izquierda Adelante — Clon (AIN1) | 25 |
