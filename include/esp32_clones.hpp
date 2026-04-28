@@ -52,9 +52,11 @@ void set_pines_driver_clone(MotorDriveUnit &motor_driver)
 {
   motor_driver.getLeftMotor().setDirectionPins(C_LEFT_FORWARD_PIN, C_LEFT_BACKWARD_PIN, USE_DIGITAL_DIRECTIONS);
   motor_driver.getRightMotor().setDirectionPins(C_RIGHT_FORWARD_PIN, C_RIGHT_BACKWARD_PIN, USE_DIGITAL_DIRECTIONS);
+#if HBRIDGE == BTS7960 || HBRIDGE == TB6612FNG
   motor_driver.getLeftMotor().setEnablePin(C_LEFT_ENABLE_PIN, USE_DIGITAL_ENABLES);
   motor_driver.getRightMotor().setEnablePin(C_RIGHT_ENABLE_PIN, USE_DIGITAL_ENABLES);
-#ifdef HBRIDGE == TB6612FNG
+#endif
+#if HBRIDGE == TB6612FNG
   motor_driver.setDriverEnablePin(C_STANDBY_PIN, USE_DIGITAL_STBY);
 #endif
 }
