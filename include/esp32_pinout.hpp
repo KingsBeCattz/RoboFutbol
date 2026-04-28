@@ -56,3 +56,28 @@ constexpr Pin RIGHT_ENABLE_PIN = 16;
 #else
 #error "HBRIDGE not defined or not recognized. Define HBRIDGE as L298N, TB6612FNG, or BTS7960."
 #endif
+
+void printPinout()
+{
+  Serial.println("Pinout:");
+  Serial.print("LED_STATUS_PIN: ");
+  Serial.println(LED_STATUS_PIN);
+  Serial.print("LEFT_FORWARD_PIN: ");
+  Serial.println(LEFT_FORWARD_PIN);
+  Serial.print("LEFT_BACKWARD_PIN: ");
+  Serial.println(LEFT_BACKWARD_PIN);
+  Serial.print("RIGHT_FORWARD_PIN: ");
+  Serial.println(RIGHT_FORWARD_PIN);
+  Serial.print("RIGHT_BACKWARD_PIN: ");
+  Serial.println(RIGHT_BACKWARD_PIN);
+#if HBRIDGE == TB6612FNG || HBRIDGE == BTS7960
+  Serial.print("LEFT_ENABLE_PIN: ");
+  Serial.println(LEFT_ENABLE_PIN);
+  Serial.print("RIGHT_ENABLE_PIN: ");
+  Serial.println(RIGHT_ENABLE_PIN);
+#endif
+#if HBRIDGE == TB6612FNG
+  Serial.print("STANDBY_PIN: ");
+  Serial.println(STANDBY_PIN);
+#endif
+}
