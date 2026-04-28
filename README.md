@@ -29,6 +29,7 @@ The project provides multiple environments split between ESP32 and Arduino platf
 #### ESP32 Environments
 
 - **`esp32-l298n`**: ESP32 with L298N motor driver
+- **`esp32-l298n-dual`**: ESP32 with two L298N motor drivers
 - **`esp32-tb6612fng`**: ESP32 with TB6612FNG motor driver
 - **`esp32-tb6612fng-dual`**: ESP32 with two TB6612FNG motor drivers
 - **`esp32-bts7960`**: ESP32 with BTS7960 motor driver
@@ -52,6 +53,10 @@ extra_configs = config.ini
 [env:esp32-l298n]
 extends = esp32-base
 build_flags = ${config_l298n.build_flags}
+
+[env:esp32-l298n-dual]
+extends = esp32-base
+build_flags = ${config_l298n_dual.build_flags}
 
 [env:esp32-tb6612fng]
 extends = esp32-base
@@ -89,6 +94,13 @@ build_flags =
   -D USE_PWM_INPUTS
   -D L298N=1
   -D HBRIDGE=1
+
+[config_l298n_dual]
+build_flags =
+  -D USE_PWM_INPUTS
+  -D L298N=1
+  -D HBRIDGE=1
+  -D DUAL=1
 
 [config_tb6612fng]
 build_flags =
@@ -141,6 +153,21 @@ Pin definitions are located in `esp32_pinout.hpp`, `esp32_clones.hpp`, and `ardu
 | Left Backward (IN2) | 14 |
 | Right Forward (IN3) | 25 |
 | Right Backward (IN4) | 26 |
+
+#### L298N — Dual / Clone ⭐
+> Use environment **`esp32-l298n-dual`** for this variant. Clone modules expose additional pins alongside the standard L298N pinout; using the wrong environment will result in the clone driver being left uninitialized and inactive.
+
+| Function | Pin |
+|---|---|
+| Left Forward (IN1) | 27 |
+| Left Backward (IN2) | 14 |
+| Right Forward (IN3) | 25 |
+| Right Backward (IN4) | 26 |
+| -- | -- |
+| Left Forward — Clone (IN1) | 4 |
+| Left Backward — Clone (IN2) | 16 |
+| Right Forward — Clone (IN3) | 17 |
+| Right Backward — Clone (IN4) | 5 |
 
 #### TB6612FNG
 
@@ -330,6 +357,5 @@ Choose the environment that matches your motor driver: `arduino-l298n`, `arduino
 * Select the correct PlatformIO environment before building. The environment determines both the target platform and the motor driver configuration.
 * Motor driver build flags (pin modes, HBRIDGE ID) are defined in `config.ini` and loaded automatically by `platformio.ini`.
 * Pin assignments are defined in `esp32_pinout.hpp`, `esp32_clones.hpp`, and `arduino_pinout.hpp`, and selected at compile time via the `HBRIDGE` and `DUAL` macros.
-* **TB6612FNG clone modules** use a different pin mapping than standard boards. Always use `esp32-tb6612fng-dual` for these. Running `esp32-tb6612fng` firmware on a dual/clone circuit will leave the clone driver uninitialized and inactive. The reverse — running `esp32-tb6612fng-dual` firmware on a standard TB6612FNG circuit — is harmless, as the extra pins simply go unused.
-* **BTS7960 clone modules** use a different pin mapping than standard boards. Always use `esp32-bts7960-dual` for these. Running `esp32-bts7960` firmware on a dual/clone circuit will leave the clone motor driver uninitialized and inactive. The reverse — running `esp32-bts7960-dual` firmware on a standard BTS7960 circuit — is harmless, as the extra pins simply go unused.
+* **Clone/dual modules** (BTS7960, TB6612FNG, and L298N) use a different pin mapping than their standard counterparts. Always use the `-dual` environment variant (`esp32-bts7960-dual`, `esp32-tb6612fng-dual`, `esp32-l298n-dual`) for these. Running standard firmware on a dual/clone circuit will leave the clone driver uninitialized and inactive. The reverse — running `-dual` firmware on a standard circuit — is harmless, as the extra pins simply go unused.
 * **Speed limit pin** (`SPEED_LIMIT_PIN`) is read only once at startup. Connecting or disconnecting it after boot has no effect until the next reset.
