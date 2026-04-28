@@ -67,3 +67,26 @@ void setup_driver_clone(MotorDriveUnit &motor_driver, UnsignedPWM deadzone)
   motor_driver.setDeadzone(deadzone);
   motor_driver.begin();
 }
+
+void print_clone_pinout()
+{
+  Serial.println("Clone Pinout:");
+  Serial.print("C_LEFT_FORWARD_PIN: ");
+  Serial.println(C_LEFT_FORWARD_PIN);
+  Serial.print("C_LEFT_BACKWARD_PIN: ");
+  Serial.println(C_LEFT_BACKWARD_PIN);
+  Serial.print("C_RIGHT_FORWARD_PIN: ");
+  Serial.println(C_RIGHT_FORWARD_PIN);
+  Serial.print("C_RIGHT_BACKWARD_PIN: ");
+  Serial.println(C_RIGHT_BACKWARD_PIN);
+#if HBRIDGE == TB6612FNG || HBRIDGE == BTS7960
+  Serial.print("C_LEFT_ENABLE_PIN: ");
+  Serial.println(C_LEFT_ENABLE_PIN);
+  Serial.print("C_RIGHT_ENABLE_PIN: ");
+  Serial.println(C_RIGHT_ENABLE_PIN);
+#endif
+#if HBRIDGE == TB6612FNG
+  Serial.print("C_STANDBY_PIN: ");
+  Serial.println(C_STANDBY_PIN);
+#endif
+}
