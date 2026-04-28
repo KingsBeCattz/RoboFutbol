@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <types.h>
 #include <half_power.hpp>
+#include <serial_tools.hpp>
 
 // #define USE_HALF_POWER
 
@@ -52,6 +53,8 @@ void setup()
   UnsignedPWM deadzone = 70;
   configure_drivers(deadzone);
   digitalWrite(LED_STATUS_PIN, LOW);
+  printTools::printHBridgeType();
+  printTools::printPinout();
 }
 
 void loop()
