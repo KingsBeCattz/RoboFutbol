@@ -16,6 +16,7 @@ constexpr bool PS2_RUMBLE = false;
 
 // Hbridge pin definitions for Arduino Uno
 #if HBRIDGE == L298N
+constexpr const char *hbridge = "L298N";
 constexpr bool USE_DIGITAL_DIRECTIONS = false;
 /// @brief Pin definition for left forward motion. (IN1)
 constexpr Pin LEFT_FORWARD_PIN = 9;
@@ -26,6 +27,7 @@ constexpr Pin RIGHT_FORWARD_PIN = 5;
 /// @brief Pin definition for right backward motion. (IN4)
 constexpr Pin RIGHT_BACKWARD_PIN = 3;
 #elif HBRIDGE == TB6612FNG
+constexpr const char *hbridge = "TB6612FNG";
 constexpr bool USE_DIGITAL_DIRECTIONS = true;
 constexpr bool USE_DIGITAL_ENABLES = false;
 constexpr bool USE_DIGITAL_STBY = true;
@@ -44,6 +46,7 @@ constexpr Pin RIGHT_BACKWARD_PIN = 3;
 /// @brief Pin definition for right enable. (PWMB)
 constexpr Pin RIGHT_ENABLE_PIN = 10;
 #elif HBRIDGE == BTS7960
+constexpr const char *hbridge = "BTS7960";
 constexpr bool USE_DIGITAL_DIRECTIONS = false;
 constexpr bool USE_DIGITAL_ENABLES = true;
 /// @brief Pin definition for left enable. (R_EN and L_EN)
@@ -61,3 +64,37 @@ constexpr Pin RIGHT_ENABLE_PIN = 10;
 #else
 #error "HBRIDGE not defined or not recognized. Define HBRIDGE as L298N, TB6612FNG, or BTS7960."
 #endif
+
+void printPinout()
+{
+  Serial.println("Pinout:");
+  Serial.print("LED_STATUS_PIN: ");
+  Serial.println(LED_STATUS_PIN);
+  Serial.print("LEFT_FORWARD_PIN: ");
+  Serial.println(LEFT_FORWARD_PIN);
+  Serial.print("LEFT_BACKWARD_PIN: ");
+  Serial.println(LEFT_BACKWARD_PIN);
+  Serial.print("RIGHT_FORWARD_PIN: ");
+  Serial.println(RIGHT_FORWARD_PIN);
+  Serial.print("RIGHT_BACKWARD_PIN: ");
+  Serial.println(RIGHT_BACKWARD_PIN);
+#if HBRIDGE == TB6612FNG || HBRIDGE == BTS7960
+  Serial.print("LEFT_ENABLE_PIN: ");
+  Serial.println(LEFT_ENABLE_PIN);
+  Serial.print("RIGHT_ENABLE_PIN: ");
+  Serial.println(RIGHT_ENABLE_PIN);
+#endif
+#if HBRIDGE == TB6612FNG
+  Serial.print("STANDBY_PIN: ");
+  Serial.println(STANDBY_PIN);
+#endif
+  Serial.println("PS2 Controller Pins:");
+  Serial.print("PS2_DAT_PIN: ");
+  Serial.println(PS2_DAT_PIN);
+  Serial.print("PS2_CMD_PIN: ");
+  Serial.println(PS2_CMD_PIN);
+  Serial.print("PS2_ATT_PIN: ");
+  Serial.println(PS2_ATT_PIN);
+  Serial.print("PS2_CLK_PIN: ");
+  Serial.println(PS2_CLK_PIN);
+}
