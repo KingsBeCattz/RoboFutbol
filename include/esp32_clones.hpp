@@ -8,7 +8,16 @@
 #include "types.h"
 #include <MotorDriveUnit.h>
 
-#if HBRIDGE == BTS7960
+#if HBRIDGE == L298N
+/// @brief Pin definition for left forward motion. (IN1)
+constexpr Pin C_LEFT_FORWARD_PIN = 4;
+/// @brief Pin definition for left backward motion. (IN2)
+constexpr Pin C_LEFT_BACKWARD_PIN = 16;
+/// @brief Pin definition for right forward motion. (IN3)
+constexpr Pin C_RIGHT_FORWARD_PIN = 17;
+/// @brief Pin definition for right backward motion. (IN4)
+constexpr Pin C_RIGHT_BACKWARD_PIN = 5;
+#elif HBRIDGE == BTS7960
 /// @brief Pin definition clon for left enable. (R_EN and L_EN)
 constexpr Pin C_LEFT_ENABLE_PIN = 32;
 /// @brief Pin definition clon for left backward motion. (LPWM)
