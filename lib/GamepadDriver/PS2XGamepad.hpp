@@ -12,12 +12,12 @@ public:
   bool begin() override
   {
     int error = _ps2x.config_gamepad(
-        PS2_CLK_PIN,
-        PS2_CMD_PIN,
-        PS2_ATT_PIN,
-        PS2_DAT_PIN,
-        PS2_PRESSURES,
-        PS2_RUMBLE);
+        ArduinoPinout::PS2_CLK_PIN,
+        ArduinoPinout::PS2_CMD_PIN,
+        ArduinoPinout::PS2_ATT_PIN,
+        ArduinoPinout::PS2_DAT_PIN,
+        ArduinoPinout::PS2_PRESSURES,
+        ArduinoPinout::PS2_RUMBLE);
     _initialized = (error == 0);
     return _initialized;
   }
