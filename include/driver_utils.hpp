@@ -1,15 +1,9 @@
 #pragma once
 
-#ifdef ESP32
-
-#include <esp32_pinout.hpp>
+#include <pinout.hpp>
 
 #ifdef DUAL
-#include <esp32_clones.hpp>
-#endif
-
-#else
-#include <arduino_pinout.hpp>
+#include <cloned_pinout.hpp>
 #endif
 
 #include <input_modes.hpp>
@@ -27,12 +21,12 @@ inline void configure_drivers(UnsignedPWM deadzone)
 {
   motor_driver.setDeadzone(deadzone);
 
-  motor_driver.getLeftMotor().setDirectionPins(LEFT_FORWARD_PIN, LEFT_BACKWARD_PIN, USE_DIGITAL_DIRECTIONS);
-  motor_driver.getRightMotor().setDirectionPins(RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, USE_DIGITAL_DIRECTIONS);
+  motor_driver.getLeftMotor().setDirectionPins(Pinout::LEFT_FORWARD_PIN, Pinout::LEFT_BACKWARD_PIN, Pinout::USE_DIGITAL_DIRECTIONS);
+  motor_driver.getRightMotor().setDirectionPins(Pinout::RIGHT_FORWARD_PIN, Pinout::RIGHT_BACKWARD_PIN, Pinout::USE_DIGITAL_DIRECTIONS);
 
 #if HBRIDGE != L298N
-  motor_driver.getLeftMotor().setEnablePin(LEFT_ENABLE_PIN, USE_DIGITAL_ENABLES);
-  motor_driver.getRightMotor().setEnablePin(RIGHT_ENABLE_PIN, USE_DIGITAL_ENABLES);
+  motor_driver.getLeftMotor().setEnablePin(Pinout::LEFT_ENABLE_PIN, Pinout::USE_DIGITAL_ENABLES);
+  motor_driver.getRightMotor().setEnablePin(Pinout::RIGHT_ENABLE_PIN, Pinout::USE_DIGITAL_ENABLES);
 #endif
 
 #if HBRIDGE == TB6612FNG
