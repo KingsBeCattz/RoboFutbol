@@ -1,7 +1,7 @@
 #pragma once
 
 #if DUAL != 1 || !defined(ESP32)
-#error "This header is intended for use with the BTS7960 H-bridge. Please define HBRIDGE as BTS7960 before including this file."
+#error "This header is intended for use with ESP32. Please use ESP32 environments before including this file."
 #endif
 
 #include "esp32_pinout.hpp"
