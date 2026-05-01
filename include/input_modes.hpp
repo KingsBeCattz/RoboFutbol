@@ -1,12 +1,7 @@
 #pragma once
 
-#ifdef ESP32
-#include <BP32Gamepad.hpp>
-extern Bluepad32Gamepad gamepad;
-#else
-#include <PS2XGamepad.hpp>
-extern PS2Gamepad gamepad;
-#endif
+#include <gamepad.hpp>
+extern CurrentGamepad gamepad;
 
 #include <MotorDriveUnit.h>
 
