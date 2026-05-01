@@ -7,7 +7,7 @@
 
 namespace ArduinoPinout
 {
-  constexpr Pin LED_STATUS_PIN = LED_BUILTIN;
+  constexpr Pin LED_STATUS_PIN = 13;
   constexpr Pin SPEED_LIMIT_PIN = A0;
   // Controller pin definitions for Arduino Uno (PS2X library)
   constexpr Pin PS2_DAT_PIN = 2;
