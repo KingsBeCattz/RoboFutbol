@@ -2,13 +2,11 @@
 
 #include <Arduino.h>
 
-#ifdef ESP32
-#include <esp32_pinout.hpp>
+#include <Motor.h>
+#include <pinout.hpp>
+
 #if DUAL == 1
-#include <esp32_clones.hpp>
-#endif
-#else
-#include <arduino_pinout.hpp>
+#include <cloned_pinout.hpp>
 #endif
 
 namespace printTools
