@@ -1,12 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-
-#ifdef ESP32
-#include <esp32_pinout.hpp>
-#else
-#include <arduino_pinout.hpp>
-#endif
+#include <pinout.hpp>
 
 extern bool half_power;
 
