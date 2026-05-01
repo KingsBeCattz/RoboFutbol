@@ -1,24 +1,26 @@
 #include <Arduino.h>
 #include <types.h>
-#include <half_power.hpp>
 #include <serial_tools.hpp>
 
-// #define USE_HALF_POWER
+#include <pinout.hpp>
+#include <gamepad.hpp>
 
-#ifdef ESP32
-#include <esp32_pinout.hpp>
-#include <BP32Gamepad.hpp>
+CurrentGamepad gamepad;
 
-#ifdef DUAL
-#include <esp32_clones.hpp>
-#endif
+// #ifdef ESP32
+// #include <esp32_pinout.hpp>
+// #include <BP32Gamepad.hpp>
 
-Bluepad32Gamepad gamepad;
-#else
-#include <arduino_pinout.hpp>
-#include <PS2XGamepad.hpp>
-PS2Gamepad gamepad;
-#endif
+// #ifdef DUAL
+// #include <esp32_clones.hpp>
+// #endif
+
+// Bluepad32Gamepad gamepad;
+// #else
+// #include <arduino_pinout.hpp>
+// #include <PS2XGamepad.hpp>
+// PS2Gamepad gamepad;
+// #endif
 
 bool half_power = false;
 
@@ -42,17 +44,13 @@ InputMode input_mode =
 void setup()
 {
   Serial.begin(115200);
-  pinMode(LED_STATUS_PIN, OUTPUT);
+  pinMode(Pinout::LED_STATUS_PIN, OUTPUT);
 
-#ifdef USE_HALF_POWER
-  setHalfPower();
-#endif
-
-  digitalWrite(LED_STATUS_PIN, HIGH);
+  digitalWrite(Pinout::LED_STATUS_PIN, HIGH);
   gamepad.begin();
   UnsignedPWM deadzone = 70;
   configure_drivers(deadzone);
-  digitalWrite(LED_STATUS_PIN, LOW);
+  digitalWrite(Pinout::LED_STATUS_PIN, LOW);
   printTools::printHBridgeType();
   printTools::printPinout();
 }
@@ -62,9 +60,9 @@ void loop()
   gamepad.update();
   if (!gamepad.isConnected())
   {
-    digitalWrite(LED_STATUS_PIN, LOW);
+    digitalWrite(Pinout::LED_STATUS_PIN, LOW);
     delay(130);
-    digitalWrite(LED_STATUS_PIN, HIGH);
+    digitalWrite(Pinout::LED_STATUS_PIN, HIGH);
     delay(130);
     gamepad.reset();
     stop_motors();
