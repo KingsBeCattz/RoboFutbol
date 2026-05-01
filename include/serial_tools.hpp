@@ -24,7 +24,7 @@ namespace printTools
   {
     if (enablePin != Motor::PIN_UNUSED)
     {
-      Serial.printf("%s %sGPIO%d / %sGPIO%d | %sGPIO%d\n", side, forwardPin, backwardPin, enable_type, enablePin);
+      Serial.printf("%s %sGPIO%d / %sGPIO%d | %sGPIO%d\n", side, direction_type, forwardPin, direction_type, backwardPin, enable_type, enablePin);
     }
     else
     {
