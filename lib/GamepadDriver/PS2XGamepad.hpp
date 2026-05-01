@@ -4,25 +4,8 @@
 #include <util.hpp>
 #include <GamepadState.hpp>
 #include <PS2X_lib.h>
-// Default pin definitions
-#ifndef PS2_DAT_PIN
-constexpr uint8_t PS2_DAT_PIN = 13;
-#endif
-#ifndef PS2_CMD_PIN
-constexpr uint8_t PS2_CMD_PIN = 12;
-#endif
-#ifndef PS2_ATT_PIN
-constexpr uint8_t PS2_ATT_PIN = 7;
-#endif
-#ifndef PS2_CLK_PIN
-constexpr uint8_t PS2_CLK_PIN = 8;
-#endif
-#ifndef PS2_PRESSURES
-constexpr bool PS2_PRESSURES = false;
-#endif
-#ifndef PS2_RUMBLE
-constexpr bool PS2_RUMBLE = false;
-#endif
+#include <arduino_pinout.hpp>
+
 class PS2Gamepad : public IGamepad
 {
 public:
