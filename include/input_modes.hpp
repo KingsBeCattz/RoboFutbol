@@ -22,7 +22,7 @@ enum class InputMode : uint8_t
   DUAL_STICK_LEFT = 3,     // D-Left
 };
 
-SourceFn raw_power_fn = nullptr;
+MotorDriveUnit::SourceFn raw_power_fn = nullptr;
 
 inline SignedPWM power_wrapper()
 {
