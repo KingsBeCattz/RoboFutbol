@@ -30,7 +30,7 @@ inline void configure_drivers(UnsignedPWM deadzone)
 #endif
 
 #if HBRIDGE == TB6612FNG
-  motor_driver.setDriverEnablePin(STANDBY_PIN, USE_DIGITAL_STBY);
+  motor_driver.setDriverEnablePin(Pinout::STANDBY_PIN, Pinout::USE_DIGITAL_STBY);
 #endif
 
   motor_driver.setPowerSource(power_wrapper);
