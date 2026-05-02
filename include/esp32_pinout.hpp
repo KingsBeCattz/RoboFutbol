@@ -52,7 +52,7 @@ namespace ESP32Pinout
 
 #elif HBRIDGE == BTS7960
   constexpr const char *hbridge = "BTS7960";
-  constexpr bool USE_DIGITAL_DIRECTIONS = true;
+  constexpr bool USE_DIGITAL_DIRECTIONS = false;
   constexpr bool USE_DIGITAL_ENABLES = true;
   constexpr bool USE_DIGITAL_STBY = false;
   /// @brief Pin definition for left enable. (R_EN and L_EN)
