@@ -16,9 +16,9 @@ namespace printTools
     Serial.printf("H-Bridge Type: %s\n", Pinout::hbridge);
   }
 
-  const char *direction_type = Pinout::USE_DIGITAL_DIRECTIONS ? "" : "~";
-  const char *enable_type = Pinout::USE_DIGITAL_ENABLES ? "" : "~";
-  const char *stby_type = Pinout::USE_DIGITAL_ENABLES ? "" : "~";
+  const char *direction_type = Pinout::USE_DIGITAL_DIRECTIONS ? "-" : "~";
+  const char *enable_type = Pinout::USE_DIGITAL_ENABLES ? "-" : "~";
+  const char *stby_type = Pinout::USE_DIGITAL_STBY ? "-" : "~";
 
   void _printPinoutBySide(char *side, Pin forwardPin, Pin backwardPin, Pin enablePin = Motor::PIN_UNUSED)
   {
