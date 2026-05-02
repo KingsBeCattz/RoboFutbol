@@ -20,7 +20,7 @@ namespace printTools
   const char *enable_type = Pinout::USE_DIGITAL_ENABLES ? "-" : "~";
   const char *stby_type = Pinout::USE_DIGITAL_STBY ? "-" : "~";
 
-  void _printPinoutBySide(char *side, Pin forwardPin, Pin backwardPin, Pin enablePin = Motor::PIN_UNUSED)
+  void _printPinoutBySide(const char *side, Pin forwardPin, Pin backwardPin, Pin enablePin = Motor::PIN_UNUSED)
   {
     if (enablePin != Motor::PIN_UNUSED)
     {
