@@ -57,11 +57,13 @@ private:
   {
     BP32.enableNewBluetoothConnections(false);
     _controller = ctl;
+    Serial.printf("Controller connected: %s\n", ctl->getModelName());
   }
   static void onDisconnected(ControllerPtr ctl)
   {
     BP32.enableNewBluetoothConnections(true);
     _controller = nullptr;
+    Serial.printf("Controller disconnected: %s\n", ctl->getModelName());
     if (_instance)
       _instance->reset();
   }
@@ -99,7 +101,4 @@ private:
     return result;
   }
 };
-
-ControllerPtr Bluepad32Gamepad::_controller = nullptr;
-Bluepad32Gamepad *Bluepad32Gamepad::_instance = nullptr;
 #endif

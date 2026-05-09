@@ -1,18 +1,16 @@
 #pragma once
 
+#include <MotorDriveUnit.h>
 #include <gamepad.hpp>
+#include <types.h>
+
 extern CurrentGamepad gamepad;
 
-#include <MotorDriveUnit.h>
-
-extern bool half_power;
 extern MotorDriveUnit motor_driver;
 
 #if defined(DUAL) && defined(ESP32)
 extern MotorDriveUnit motor_driver_clone;
 #endif
-
-#include <types.h>
 
 enum class InputMode : uint8_t
 {
@@ -22,17 +20,11 @@ enum class InputMode : uint8_t
   DUAL_STICK_LEFT = 3,     // D-Left
 };
 
-MotorDriveUnit::SourceFn raw_power_fn = nullptr;
-
-inline SignedPWM power_wrapper()
-{
-  SignedPWM power = raw_power_fn ? raw_power_fn() : 0;
-
-  if (half_power && !gamepad.held(Button::A))
-    power /= 2;
-
-  return power;
-}
+#ifdef ESP32
+constexpr InputMode DEFAULT_INPUT_MODE = InputMode::TRIGGER_STICK_RIGHT;
+#else
+constexpr InputMode DEFAULT_INPUT_MODE = InputMode::DUAL_STICK_RIGHT;
+#endif
 
 inline SignedPWM
 trigger_power_right()
@@ -69,34 +61,30 @@ inline SignedPWM right_stick_x()
   return static_cast<SignedPWM>(gamepad.rightStick().filtered.x * 255);
 }
 
-inline void set_input_mode(InputMode mode)
+inline void set_input_mode(MotorDriveUnit &driver, InputMode mode)
 {
   switch (mode)
   {
   case InputMode::TRIGGER_STICK_RIGHT:
-    raw_power_fn = trigger_power_right;
-    motor_driver.setDirectionSource(left_stick_x);
+    driver.setPowerSource(trigger_power_right);
+    driver.setDirectionSource(left_stick_x);
     break;
   case InputMode::TRIGGER_STICK_LEFT:
-    raw_power_fn = trigger_power_left;
-    motor_driver.setDirectionSource(right_stick_x);
+    driver.setPowerSource(trigger_power_left);
+    driver.setDirectionSource(right_stick_x);
     break;
   case InputMode::DUAL_STICK_RIGHT:
-    raw_power_fn = left_stick_y;
-    motor_driver.setDirectionSource(right_stick_x);
+    driver.setPowerSource(left_stick_y);
+    driver.setDirectionSource(right_stick_x);
     break;
   case InputMode::DUAL_STICK_LEFT:
-    raw_power_fn = right_stick_y;
-    motor_driver.setDirectionSource(left_stick_x);
+    driver.setPowerSource(right_stick_y);
+    driver.setDirectionSource(left_stick_x);
     break;
   }
-
-#if defined(DUAL) && defined(ESP32)
-  motor_driver_clone.setDirectionSource(motor_driver.getDirectionSourceFunction());
-#endif
 }
 
-inline void change_input_mode(InputMode &current_mode)
+inline void change_input_mode(MotorDriveUnit &driver, InputMode &current_mode)
 {
   auto previous_mode = current_mode;
 
@@ -110,5 +98,5 @@ inline void change_input_mode(InputMode &current_mode)
     current_mode = InputMode::DUAL_STICK_LEFT;
 
   if (current_mode != previous_mode)
-    set_input_mode(current_mode);
+    set_input_mode(driver, current_mode);
 }

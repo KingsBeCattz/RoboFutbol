@@ -1,58 +1,49 @@
 #include <Arduino.h>
-#include <types.h>
-#include <serial_tools.hpp>
 
 #include <pinout.hpp>
+
+#if DUAL == 1
+#include <variants/pinout.hpp>
+#endif
+
 #include <gamepad.hpp>
+#include <drivers.hpp>
+#include <debug.hpp>
+#include <tools/serial.hpp>
+#include <tools/motors.hpp>
+#include <input_modes.hpp>
+
+// #define DEBUG
 
 CurrentGamepad gamepad;
 
-// #ifdef ESP32
-// #include <esp32_pinout.hpp>
-// #include <BP32Gamepad.hpp>
-
-// #ifdef DUAL
-// #include <esp32_clones.hpp>
-// #endif
-
-// Bluepad32Gamepad gamepad;
-// #else
-// #include <arduino_pinout.hpp>
-// #include <PS2XGamepad.hpp>
-// PS2Gamepad gamepad;
-// #endif
-
-bool half_power = false;
-
-#include <MotorDriveUnit.h>
-MotorDriveUnit motor_driver;
-#if defined(DUAL) && defined(ESP32)
-MotorDriveUnit motor_driver_clone;
-#endif
-
-#include <input_modes.hpp>
-InputMode input_mode =
-#ifdef ESP32
-    InputMode::TRIGGER_STICK_RIGHT
-#else
-    InputMode::DUAL_STICK_RIGHT
-#endif
-    ;
-
-#include <driver_utils.hpp>
+InputMode input_mode = DEFAULT_INPUT_MODE;
 
 void setup()
 {
+  BP32.forgetBluetoothKeys();
   Serial.begin(115200);
   pinMode(Pinout::LED_STATUS_PIN, OUTPUT);
 
+#ifdef DEBUG
+  DebugTools::advice();
+#endif
+
   digitalWrite(Pinout::LED_STATUS_PIN, HIGH);
   gamepad.begin();
-  UnsignedPWM deadzone = 70;
-  configure_drivers(deadzone);
+
+  configure_all_drivers(DEFAULT_DEADZONE);
+
   digitalWrite(Pinout::LED_STATUS_PIN, LOW);
-  printTools::printHBridgeType();
-  printTools::printPinout();
+  SerialTools::printVersion();
+#ifndef ESP32
+  Pinout::printControllerPins();
+#endif
+  SerialTools::printHBridgeType();
+  SerialTools::printHbridgePinout(Pinout::HBridge);
+#if DUAL == 1
+  SerialTools::printHbridgePinout(ClonedPinout::HBridge);
+#endif
 }
 
 void loop()
@@ -65,19 +56,25 @@ void loop()
     digitalWrite(Pinout::LED_STATUS_PIN, HIGH);
     delay(130);
     gamepad.reset();
-    stop_motors();
+
+    MotorsTools::stop(ALL_DRIVERS);
 
     return;
   }
 
   if (gamepad.getState().buttons.raw() & Button::DPAD_MASK)
-    change_input_mode(input_mode);
+    MotorsTools::set_input_mode(ALL_DRIVERS, input_mode);
 
-  set_exposition_active(gamepad.held(Button::Y));
+  MotorsTools::set_exposition(ALL_DRIVERS, gamepad.held(Button::Y));
 
   if (gamepad.held(Button::X))
-    use_tank_drive();
+    MotorsTools::use_tank_drive(ALL_DRIVERS);
 
-  update_drivers();
+  MotorsTools::update(ALL_DRIVERS);
+
+#ifdef DEBUG
+  DebugTools::snitchGamepad(gamepad.getState());
+#endif
+
   delay(10);
 }

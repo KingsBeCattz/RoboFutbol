@@ -1,10 +1,12 @@
 #pragma once
-#ifndef ESP32
+#ifdef ESP32
+#error "This header is intended for use with Arduino Uno. Please use Arduino Uno environments before including this file."
+#else
 #include <Arduino.h>
 #include <util.hpp>
 #include <GamepadState.hpp>
 #include <PS2X_lib.h>
-#include <arduino_pinout.hpp>
+#include <pinout/arduino.hpp>
 
 class PS2Gamepad : public IGamepad
 {
