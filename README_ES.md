@@ -89,49 +89,44 @@ build_flags = ${config_bts7960.build_flags}
 
 ```ini
 ; config.ini
+[config_base]
+build_flags =
+  -D FIRMWARE_VERSION='"6.0.0"'
+
 [config_l298n]
 build_flags =
-  -D USE_PWM_INPUTS
+  ${config_base.build_flags}
   -D L298N=1
   -D HBRIDGE=1
 
 [config_l298n-dual]
 build_flags =
-  -D USE_PWM_INPUTS
-  -D L298N=1
-  -D HBRIDGE=1
+  ${config_base.build_flags}
+  ${config_l298n.build_flags}
   -D DUAL=1
 
 [config_tb6612fng]
 build_flags =
-  -D USE_PWM_INPUTS
-  -D USE_DIGITAL_ENABLE
-  -D USE_STANDBY
+  ${config_base.build_flags}
   -D TB6612FNG=2
   -D HBRIDGE=2
 
 [config_tb6612fng_dual]
 build_flags =
-  -D USE_PWM_INPUTS
-  -D USE_DIGITAL_ENABLE
-  -D USE_STANDBY
-  -D TB6612FNG=2
-  -D HBRIDGE=2
+  ${config_base.build_flags}
+  ${config_tb6612fng.build_flags}
   -D DUAL=1
 
 [config_bts7960]
 build_flags =
-  -D USE_PWM_INPUTS
-  -D USE_DIGITAL_ENABLE
+  ${config_base.build_flags}
   -D BTS7960=3
   -D HBRIDGE=3
 
 [config_bts7960_dual]
 build_flags =
-  -D USE_PWM_INPUTS
-  -D USE_DIGITAL_ENABLE
-  -D BTS7960=3
-  -D HBRIDGE=3
+  ${config_base.build_flags}
+  ${config_bts7960.build_flags}
   -D DUAL=1
 ```
 
@@ -232,14 +227,6 @@ Las definiciones de pines se encuentran en `esp32_pinout.hpp`, `esp32_clones.hpp
 | Derecha Atrás — Clon (LPWM) | 19 |
 | Habilitación Derecha — Clon (R_EN / L_EN) | 21 |
 
-#### Límite de velocidad (todos los entornos ESP32)
-
-| Función | Pin |
-|---|---|
-| Límite de velocidad (SPEED_LIMIT_PIN) | 34 |
-
-> El pin 34 es de solo entrada en el ESP32, lo que lo hace ideal para una lectura pasiva con pullup. Ver [Límite de velocidad](#límite-de-velocidad) para más detalles.
-
 ---
 
 ### Arduino Uno
@@ -285,14 +272,6 @@ Los pines del receptor PS2 son fijos independientemente del driver:
 | Derecha Atrás (LPWM) | 3 |
 | Habilitación Derecha (R_EN / L_EN) | 10 |
 
-#### Límite de velocidad (todos los entornos Arduino)
-
-| Función | Pin |
-|---|---|
-| Límite de velocidad (SPEED_LIMIT_PIN) | A0 |
-
-> Ver [Límite de velocidad](#límite-de-velocidad) para más detalles.
-
 ---
 
 ## Uso
@@ -315,24 +294,12 @@ El modo predeterminado al arrancar depende de la plataforma:
 - **ESP32:** `↑ Arriba` (Gatillo + X Izquierdo)
 - **Arduino:** `→ Derecha` (Doble Stick Derecho)
 
-### Límite de velocidad
-
-Por defecto, la velocidad está limitada al 50% a menos que se mantenga presionado el **botón A** (ESP32) o **botón Cruz** (Arduino), lo que permite el 100% de velocidad.
-
-Este comportamiento puede **desactivarse permanentemente al arrancar**: si `SPEED_LIMIT_PIN` está conectado a GND cuando la placa inicia, el límite se elimina por completo y el botón no tiene efecto durante toda la sesión. Desconectar el pin después del arranque no tiene efecto; el estado se lee una sola vez al inicio.
-
-| Condición | Comportamiento |
-|---|---|
-| Pin flotante / HIGH al arrancar | Límite activo — mantén A/Cruz para 100% |
-| Pin conectado a GND al arrancar | Sin límite — velocidad completa siempre |
-
 ### ESP32 (Bluepad32)
 
 * Código principal: `src/main.cpp`.
 * Mapeo de botones:
 
   * **D-Pad** → seleccionar modo de entrada (ver tabla anterior)
-  * **A** → mantener para velocidad completa (cuando el límite está activo)
   * **X (SQUARE/Y)** → activa el modo **tank drive**
   * **Y (TRIANGLE/X)** → activa el modo **exposición**
 
@@ -344,7 +311,6 @@ Elige el entorno que corresponda a tu placa y driver de motores: `esp32-l298n`, 
 * Mapeo de botones:
 
   * **D-Pad** → seleccionar modo de entrada (ver tabla anterior)
-  * **Cruz** → mantener para velocidad completa (cuando el límite está activo)
   * **SQUARE** → tank drive
   * **TRIANGLE** → modo exposición
 
@@ -358,4 +324,3 @@ Elige el entorno que corresponda a tu driver de motores: `arduino-l298n`, `ardui
 * Los build flags del driver de motores (modos de pin, ID de HBRIDGE) se definen en `config.ini` y son cargados automáticamente por `platformio.ini`.
 * Las asignaciones de pines se definen en `esp32_pinout.hpp`, `esp32_clones.hpp` y `arduino_pinout.hpp`, y se seleccionan en tiempo de compilación mediante los macros `HBRIDGE` y `DUAL`.
 * **Los módulos clone/dual** (BTS7960, TB6612FNG y L298N) utilizan un mapeo de pines distinto al de sus contrapartes estándar. Usa siempre la variante de entorno `-dual` (`esp32-bts7960-dual`, `esp32-tb6612fng-dual`, `esp32-l298n-dual`) para estos. Flashear firmware estándar en un circuito dual/clone dejará el driver clone sin inicializar e inactivo. Lo contrario — flashear firmware `-dual` en un circuito estándar — es inofensivo, ya que los pines extra simplemente quedan sin usar.
-* **El pin de límite de velocidad** (`SPEED_LIMIT_PIN`) se lee una sola vez al arrancar. Conectarlo o desconectarlo después del arranque no tiene efecto hasta el siguiente reinicio.
